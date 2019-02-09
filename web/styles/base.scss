@@ -1,0 +1,24 @@
+// Base styles
+
+@import "colors";
+
+
+$font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen-Sans, Ubuntu, Cantarell, Helvetica, Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$font-mono: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+            "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
+            "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+
+* {
+  font-family: $font;
+  color: inherit;
+  display: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  color: $dark;
+  background: $light;
+}

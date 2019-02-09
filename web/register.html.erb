@@ -3,20 +3,41 @@
 
   <head>
     <title>Register</title>
-    
+    <link href="/css/user.css" rel="stylesheet" type="text/css">
   </head>
 
   <body>
-    <h1>Register</h1>
-    <div class="qr-code">
-      <%= qr_secret %>
+    <div class="container">
+      <h1>Register</h1>
+
+      <!-- ERRORS -->
+      <% if error %>
+      <span class="error"><%= error %></span>
+      <% end %>
+
+      <!-- QR CODE & SECRET -->
+      <img class="qr-code" src="<%= qr_secret %>">
+      <h3>Scan the QR code of copy the secret below</h3>
+      <h2><%=
+        s = ""
+        secret.split("").each_slice(4).with_index do |slice, i|
+          s << slice.join
+          if i == 3
+            s << "<br>"
+          elsif i < 7
+            s << " "
+          end
+        end
+        s
+      %></h2>
+
+      <form method="POST">
+        <input name="username" type="text" value="<%= username %>" placeholder="Username">
+        <input name="code" type="number" placeholder="Enter Code">
+        <input name="secret" type="text" value="<%= secret %>" style="display:none">
+        <input type="submit" value="Register">
+      </form>
     </div>
-    <h2><%= secret %></h2>
-    <form method="POST">
-      <input name="username" type="text" value="<%= username %>" placeholder="Username">
-      <input name="secret" type="text" value="<%= secret %>" style="display:none">
-      <input type="submit" value="Register">
-    </form>
   </body>
 
 </html>
