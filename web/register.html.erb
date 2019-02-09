@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Register</title>
+    
+  </head>
+
+  <body>
+    <h1>Register</h1>
+    <div class="qr-code">
+      <%= qr_secret %>
+    </div>
+    <h2><%= secret %></h2>
+    <form method="POST">
+      <input name="username" type="text" value="<%= username %>" placeholder="Username">
+      <input name="secret" type="text" value="<%= secret %>" style="display:none">
+      <input type="submit" value="Register">
+    </form>
+  </body>
+
+</html>
