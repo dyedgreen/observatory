@@ -1,0 +1,11 @@
+version: "3"
+services:
+  server:
+    build: .
+    ports:
+      - 8080:80
+    volumes:
+      - .:/usr/var/app
+    environment:
+      - session_secret=sfo34htoi4nrfnaewoig45
+    command: rerun -p "**/*.{rb,ru}" --background "rackup -p 80 -o 0.0.0.0"
