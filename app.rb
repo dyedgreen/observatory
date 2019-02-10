@@ -1,20 +1,19 @@
 require "scorched"
 
-require "./classes/auth.rb"
 require "./classes/db.rb"
-require "./classes/view.rb"
+
+require "./views/base.rb"
+require "./views/auth.rb"
 
 
-class App < Scorched::Controller
-
-  render_defaults[:dir] = "./web"
+class App < Views::Base
 
   get "/" do
     render "index.html".to_sym
   end
 
-  controller "/user", UserController
-  controller "/css", StyleController
+  controller "/user", Views::User
+  controller "/static", Views::Static
 
   after status: 404 do
     response.body = render "404.html".to_sym

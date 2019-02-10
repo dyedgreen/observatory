@@ -13,7 +13,8 @@ RUN apk update \
            build-base \
            ruby-dev \
            libressl-dev \
-    && apk add sqlite sqlite-dev sqlite-libs
+    && apk add sqlite sqlite-dev sqlite-libs \
+    && apk add nodejs
 
 WORKDIR /usr/var/app
 
