@@ -1,0 +1,25 @@
+// Styles for error pages
+
+@import "base";
+
+
+.error {
+  width: 500px;
+  margin: 50px auto;
+  text-align: center;
+
+  h1 {
+    width: 100%;
+    margin: 10px auto;
+  }
+  p {
+    width: 100%;
+    margin: 10px auto;
+  }
+
+  .button {
+    width: 100px;
+    display: block;
+    margin: 20px auto;
+  }
+}

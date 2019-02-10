@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
   <head>
     <title>Register</title>
+    <%= partial "meta_tags.html" %>
     <link href="/static/styles/user.css" rel="stylesheet" type="text/css">
   </head>
 
   <body>
+    <%= partial "header.html.erb" %>
+
     <div class="container">
       <h1>Register</h1>
 
@@ -35,7 +38,7 @@
         <input name="username" type="text" value="<%= username %>" placeholder="Username">
         <input name="code" type="number" placeholder="Enter Code">
         <input name="secret" type="text" value="<%= secret %>" style="display:none">
-        <input type="submit" value="Register">
+        <input type="submit" class="button" value="Register">
       </form>
     </div>
   </body>

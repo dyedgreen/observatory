@@ -6,7 +6,7 @@ require "./views/base.rb"
 require "./views/auth.rb"
 
 
-class App < Views::Base
+class App < Views::Protected
 
   get "/" do
     render "index.html".to_sym
@@ -16,7 +16,7 @@ class App < Views::Base
   controller "/static", Views::Static
 
   after status: 404 do
-    response.body = render "404.html".to_sym
+    response.body = render "error.html.erb".to_sym
   end
 
 end

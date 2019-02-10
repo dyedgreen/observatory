@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>Error <%= response.status %></title>
+    <%= partial "meta_tags.html" %>
+    <link href="/static/styles/error.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <%= partial "header.html.erb" %>
+    <div class="error">
+      <h1>Error <%= response.status %></h1>
+      <p>Something went wrong.</p>
+      <a href="/" class="button">Go Home</a>
+    </div>
+  </body>
+
+</html>

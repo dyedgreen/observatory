@@ -21,10 +21,9 @@ module Views
   class Base < Scorched::Controller
 
     render_defaults[:dir] = "./web"
-    render_defaults[:locals] = {}
 
-    def locals(locals)
-      render_defaults[:locals].merge locals
+    def partial(file)
+      render "partials/#{file}".to_sym
     end
 
   end # Base

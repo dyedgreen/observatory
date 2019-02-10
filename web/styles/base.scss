@@ -23,5 +23,49 @@ html {
   background: $light;
 }
 
+// General
+
+h1 {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 45px;
+}
+h2 {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 35px;
+}
+h3 {
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 30px;
+}
+p {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 25px;
+}
+
 // Components
 
+.button {
+  width: auto;
+  height: 40px;
+  padding: 0 15px;
+  display: inline-block;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 40px;
+  text-decoration: none;
+  text-transform: uppercase;
+  text-align: center;
+  color: #fff;
+  background: $primary;
+  border-radius: 5px;
+  box-shadow: none;
+  transition: .1s;
+  cursor: pointer;
+}
+.button:hover {
+  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}

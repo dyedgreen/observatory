@@ -85,12 +85,12 @@ module Views
     end
 
     def render_register(username, secret, error)
-      render "register.html.erb".to_sym, locals: locals({
+      render "register.html.erb".to_sym, locals: {
         :error => error ? error : nil,
         :qr_secret => qr_code(secret),
         :secret => secret,
         :username => username,
-      })
+      }
     end
 
     def qr_code(secret)
