@@ -4,17 +4,17 @@
 
 
 .error {
-  width: 500px;
+  width: $width-small;
   margin: 50px auto;
   text-align: center;
 
   h1 {
     width: 100%;
-    margin: 10px auto;
+    margin: $padding auto;
   }
   p {
     width: 100%;
-    margin: 10px auto;
+    margin: $padding auto;
   }
 
   .button {

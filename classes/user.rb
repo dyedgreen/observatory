@@ -33,7 +33,7 @@ class User
   class << self
 
     def exist?(name)
-      $db.execute("select count(*) from users where name=?", [name])[0][0] == 1
+      $db.execute("select count(*) from users where name=?", [name.downcase])[0][0] == 1
     end
 
     def count

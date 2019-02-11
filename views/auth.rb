@@ -10,16 +10,24 @@ module Views
 
   class Protected < Base
 
+    SESSION_TIMEOUT = 60 * 15 # in seconds
+
     middleware << proc {
       use Rack::Session::Cookie, secret: ENV["session_secret"]
     }
 
     def user?
-      session["user"] ? session["user"] : nil
+      unless session["time"] && session["time"] < Time.new.to_i - SESSION_TIMEOUT
+        session["time"] = Time.new.to_i
+        return session["user"] ? session["user"] : nil
+      end
+      nil
     end
 
     def login(user)
+      raise ArgumentError, "Uses does not exist" unless ::User.exist? user
       session["user"] = user.downcase
+      session["time"] = Time.new.to_i
     end
 
     def logout
@@ -39,6 +47,9 @@ module Views
       if !user? && request.path["register"] && ::User.count > 0
         redirect "#{ROUTE}/login"
       end
+      if user? && request.path["login"]
+        redirect ROUTE
+      end
     end
 
     get "/" do
@@ -46,8 +57,23 @@ module Views
     end
 
     get "/login" do
-      # login "tilman"
-      # redirect "/"
+      render "login.html.erb".to_sym, locals: {:error => nil}
+    end
+
+    post "/login" do
+      username = request.POST["username"]
+      error = nil
+      if !::User.exist? username
+        error = "User does not exist."
+      elsif !::User.new(username).valid? request.POST["code"]
+        error = "Invalid code."
+      end
+
+      unless error
+        login username
+        redirect "/"
+      end
+      render "login.html.erb".to_sym, locals: {:error => error}
     end
 
     get "/logout" do
@@ -56,7 +82,7 @@ module Views
     end
 
     get "/register" do
-      render_register "", ::User.make_secret, nil
+      render_register ::User.make_secret, nil
     end
 
     post "/register" do
@@ -81,15 +107,14 @@ module Views
         redirect "/"
       end
 
-      render_register username, secret, error
+      render_register secret, error
     end
 
-    def render_register(username, secret, error)
+    def render_register(secret, error)
       render "register.html.erb".to_sym, locals: {
         :error => error ? error : nil,
         :qr_secret => qr_code(secret),
         :secret => secret,
-        :username => username,
       }
     end
 

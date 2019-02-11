@@ -4,24 +4,20 @@
   <head>
     <title>Register</title>
     <%= partial "meta_tags.html" %>
-    <link href="/static/styles/user.css" rel="stylesheet" type="text/css">
+    <link href="/static/styles/base.css" rel="stylesheet" type="text/css">
   </head>
 
   <body>
-    <%= partial "header.html.erb" %>
-
-    <div class="container">
+    <form action="/user/register" method="POST">
       <h1>Register</h1>
+      <p>Scan the QR code or copy the secret below.</p>
 
-      <!-- ERRORS -->
       <% if error %>
-      <span class="error"><%= error %></span>
+      <p class="error"><%= error %></p>
       <% end %>
 
-      <!-- QR CODE & SECRET -->
-      <img class="qr-code" src="<%= qr_secret %>">
-      <h3>Scan the QR code of copy the secret below</h3>
-      <h2><%=
+      <img class="qr" src="<%= qr_secret %>">
+      <p class="code"><%=
         s = ""
         secret.split("").each_slice(4).with_index do |slice, i|
           s << slice.join
@@ -32,15 +28,13 @@
           end
         end
         s
-      %></h2>
+      %></p>
 
-      <form method="POST">
-        <input name="username" type="text" value="<%= username %>" placeholder="Username">
-        <input name="code" type="number" placeholder="Enter Code">
-        <input name="secret" type="text" value="<%= secret %>" style="display:none">
-        <input type="submit" class="button" value="Register">
-      </form>
-    </div>
+      <input name="username" type="text" value="<%= request.POST['username'] %>" placeholder="Username">
+      <input name="code" type="number" placeholder="Enter Code">
+      <input name="secret" type="text" value="<%= secret %>" style="display:none">
+      <input type="submit" class="button" value="Register">
+    </form>
   </body>
 
 </html>

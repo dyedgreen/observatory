@@ -10,10 +10,19 @@ $font-mono: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
             "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
             "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 
+$width-small: 300px;
+$padding: 5px;
+$font-size: 18px;
+$font-bold: 800;
+$font-norm: 500;
+
+$shadow-big: 0 2px 15px rgba(0,0,0,0.1);
+$shadow-small: 0 1px 10px rgba(0,0,0,0.1);
+
 * {
   font-family: $font;
   color: inherit;
-  display: border-box;
+  box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
@@ -26,46 +35,109 @@ html {
 // General
 
 h1 {
-  font-size: 40px;
-  font-weight: 800;
-  line-height: 45px;
+  font-size: $font-size * 2.5;
+  font-weight: $font-bold;
+  line-height: $font-size * 2.5 + $padding;
 }
 h2 {
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 35px;
+  font-size: $font-size * 2;
+  font-weight: $font-bold;
+  line-height: $font-size * 2 + $padding;
 }
 h3 {
-  font-size: 25px;
-  font-weight: 800;
-  line-height: 30px;
+  font-size: $font-size * 1.5;
+  font-weight: $font-norm;
+  line-height: $font-size * 1.5 + $padding;
 }
 p {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 25px;
+  font-size: $font-size;
+  font-weight: $font-norm;
+  line-height: $font-size + $padding;
 }
 
 // Components
 
 .button {
+  $height: $font-size + 2 * $padding;
   width: auto;
-  height: 40px;
-  padding: 0 15px;
+  height: $height;
+  padding: 0 2 * $padding;
   display: inline-block;
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 40px;
+
+  font-size: $font-size * 0.8;
+  font-weight: $font-bold;
+  line-height: $height;
   text-decoration: none;
   text-transform: uppercase;
   text-align: center;
+
   color: #fff;
   background: $primary;
-  border-radius: 5px;
+  border: none;
+  border-radius: $padding;
   box-shadow: none;
   transition: .1s;
   cursor: pointer;
+
+  &:hover {
+    box-shadow: $shadow-big;
+  }
 }
-.button:hover {
-  box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+
+// Forms
+
+form {
+  width: $width-small;
+  max-width: 95%;
+  height: auto;
+  display: block;
+  margin: 50px auto;
+
+  input {
+    $height: $font-size + 2 * $padding;
+    width: 100%;
+    height: $height;
+    padding: 0 2 * $padding;
+    display: block;
+    margin: 5px 0;
+
+    font-size: $font-size * 0.8;
+    font-weight: $font-bold;
+    line-height: $height;
+    text-decoration: none;
+    text-align: left;
+
+    color: $dark;
+    background: rgba(0,0,0,0.1);
+    border: none;
+    border-radius: $padding;
+    transition: .1s;
+
+    &:focus {
+      background: rgba(0,0,0,0.15);
+    }
+  }
+
+  .error {
+    color: $error;
+  }
+
+  .qr {
+    width: 50%;
+    height: auto;
+    padding: $padding;
+    display: block;
+    margin: 10px auto;
+    background: #fff;
+    border-radius: $padding;
+    box-shadow: $shadow-small;
+  }
+
+  .code {
+    width: 100%;
+    font-size: $font-size;
+    font-family: $font-mono;
+    font-weight: font-bold;
+    text-align: center;
+  }
 }
