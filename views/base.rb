@@ -18,12 +18,26 @@ module Views
     "js"    => "text/javascript",
   })
 
+  STATUS_STR = Hash.new("Something went wrong").merge!({
+    204 => "No content",
+    203 => "Non authoritative information",
+    400 => "Bad request",
+    403 => "Forbidden",
+    404 => "Page not found",
+    405 => "Method not allowed",
+    500 => "Internal server error",
+  })
+
   class Base < Scorched::Controller
 
     render_defaults[:dir] = "./web"
 
     def partial(file)
       render "partials/#{file}".to_sym
+    end
+
+    def status_string(status)
+      STATUS_STR[status]
     end
 
   end # Base

@@ -10,7 +10,7 @@
   <body>
     <div class="error">
       <h1>Error <%= response.status %></h1>
-      <p>Something went wrong.</p>
+      <p><%= status_string response.status %>.</p>
       <a href="/" class="button">Go Home</a>
     </div>
   </body>

@@ -30,6 +30,12 @@ class User
     User::valid? code, @secret
   end
 
+  def update_secret(secret)
+    $db.execute <<-SQL, [secret.to_s, @name.to_s]
+      update users set secret=? where name=?
+    SQL
+  end
+
   class << self
 
     def exist?(name)

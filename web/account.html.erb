@@ -2,15 +2,15 @@
 <html lang="en">
 
   <head>
-    <title>Register</title>
+    <title>Account</title>
     <%= partial "meta_tags.html" %>
     <link href="/static/styles/base.css" rel="stylesheet" type="text/css">
   </head>
 
   <body>
-    <form action="/register" method="POST">
-      <h1>Register</h1>
-      <p>Scan the QR code or copy the secret below.</p>
+    <form action="/account" method="POST">
+      <h1>Account</h1>
+      <p>Change the login secret for <i><%= user? %></i>.</p>
 
       <% if error %>
       <p class="error"><%= error %></p>
@@ -30,10 +30,10 @@
         s
       %></p>
 
-      <input name="username" type="text" value="<%= request.POST['username'] %>" placeholder="Username">
-      <input name="code" type="number" placeholder="Enter Code" autocomplete="off">
+      <input name="code_old" type="number" placeholder="Enter Old Code" autocomplete="off">
+      <input name="code_new" type="number" placeholder="Enter New Code" autocomplete="off">
       <input name="secret" type="text" value="<%= secret %>" style="display:none">
-      <input type="submit" class="button" value="Register">
+      <input type="submit" class="button" value="Update">
     </form>
   </body>
 

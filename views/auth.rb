@@ -38,22 +38,44 @@ module Views
 
   class User < Protected
 
-    ROUTE = "/user"
-
     before do
       unless user? || request.path[/login|register/]
-        redirect "#{ROUTE}/login"
+        redirect "/login"
       end
       if !user? && request.path["register"] && ::User.count > 0
-        redirect "#{ROUTE}/login"
+        redirect "/login"
       end
       if user? && request.path["login"]
-        redirect ROUTE
+        redirect "/account"
       end
     end
 
-    get "/" do
-      user?.inspect
+    get "/account" do
+      render_register ::User.make_secret, nil, "account.html.erb"
+    end
+
+    post "/account" do
+      secret = request.POST["secret"]
+      code_old = request.POST["code_old"]
+      code_new = request.POST["code_new"]
+      error = nil
+
+      if secret.length != 32
+        error = "Something went wrong, please reload the page."
+      elsif !::User.valid? code_new, secret
+        error = "The new code is invalid."
+      elsif !::User.exist? user?
+        error = "User does not exist."
+      elsif !::User.new(user?).valid? code_old
+        error = "The old code is invalid."
+      end
+
+      unless error
+        ::User.new(user?).update_secret secret
+        redirect "/"
+      end
+
+      render_register secret, error, "account.html.erb"
     end
 
     get "/login" do
@@ -78,7 +100,7 @@ module Views
 
     get "/logout" do
       logout
-      redirect "#{ROUTE}/login"
+      redirect "/login"
     end
 
     get "/register" do
@@ -110,8 +132,8 @@ module Views
       render_register secret, error
     end
 
-    def render_register(secret, error)
-      render "register.html.erb".to_sym, locals: {
+    def render_register(secret, error, template="register.html.erb")
+      render template.to_sym, locals: {
         :error => error ? error : nil,
         :qr_secret => qr_code(secret),
         :secret => secret,
