@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+# General dependencies
+gem "test-unit"
+
 # Scorched dependencies
 gem "rerun"
 gem "puma"

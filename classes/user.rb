@@ -11,6 +11,7 @@ class User
   ERR_NOT_EXISTS = "User does not exist."
   ERR_LOGIN_CODE = "The login code is not valid."
   ERR_BAD_NAME   = "The name is not valid."
+  ERR_SECRET     = "Invalid secret."
 
   attr_reader :id, :name, :secret, :last_login
 
@@ -25,6 +26,10 @@ class User
     @name = row.first[1]
     @secret = row.first[2]
     @last_login = row.first[3]
+  end
+
+  def ==(other)
+    @id == other.id
   end
 
   def valid?(code)
@@ -71,8 +76,9 @@ class User
       # If code is given, this will
       # verify and raise on error
       name.downcase!
+      raise AppError.new ERR_SECRET unless secret.is_a? String
       raise AppError.new ERR_EXISTS if exist? name
-      raise AppError.new ERR_BAD_NAME unless name.match /\A[a-z0-9-_.]{3,}\Z/
+      raise AppError.new ERR_BAD_NAME unless name.match /\A[a-z0-9\-_.]{3,}\Z/
       raise AppError.new ERR_LOGIN_CODE unless code == nil || valid?(code, secret)
       $db.execute <<-SQL, [name, secret, Time.new.to_i]
         insert into users (name, secret, last_login) values (?, ?, ?)

@@ -21,12 +21,12 @@ class AppError < RuntimeError
   end
 
   def inspect
-    @description
+    "AppError: #{@description}"
   end
 
 end
 
-class HiddenError < AppError
+class HiddenAppError < AppError
 
   # Error that hides the description,
   # when used as a string in a view.
