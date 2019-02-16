@@ -15,8 +15,14 @@ class App < Views::Base
     # render "index.html".to_sym
   end
 
-  controller "/static", Views::Static
-  controller "/r", Views::Refer
+  get "/dashboard" do
+    flash[:message]
+  end
+
+  controller "/static/", Views::Static
+  controller "/r/", Views::Refer
+
+  # Make "/dashboard/" a controller
 
   controller "/", Views::User
 

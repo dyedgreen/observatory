@@ -2,44 +2,61 @@
 # management
 
 require "rotp"
+require "./classes/error.rb"
 
 
 class User
 
-  attr_reader :name, :secret
+  ERR_EXISTS     = "User already exists."
+  ERR_NOT_EXISTS = "User does not exist."
+  ERR_LOGIN_CODE = "The login code is not valid."
+  ERR_BAD_NAME   = "The name is not valid."
 
-  def initialize(name, secret=nil)
-    @name = name.downcase
-    @secret = secret
-    if @secret
-      $db.execute <<-SQL, [@name.to_s, @secret.to_s, Time.new.to_i]
-        insert into users (name, secret, last_login) values (?, ?, ?)
-      SQL
-      @last_login = Time.new.to_i
-    else
-      user = $db.execute <<-SQL, [@name.to_s]
-        select secret, last_login from users where name=? limit 1
-      SQL
-      raise ArgumentError, "User name does not exist" if user.count != 1
-      @secret = user[0][0]
-      @last_login = user[0][1]
-    end
+  attr_reader :id, :name, :secret, :last_login
+
+  def initialize(name_or_id)
+    name_or_id = name_or_id.downcase if name_or_id.class == String
+    q = "select id, name, secret, last_login from users where "
+    q << (name_or_id.class == Integer ? "id" : "name")
+    q << " = ? limit 1"
+    row = $db.execute q, [name_or_id]
+    raise AppError.new ERR_NOT_EXISTS unless row.count == 1
+    @id = row.first[0]
+    @name = row.first[1]
+    @secret = row.first[2]
+    @last_login = row.first[3]
   end
 
   def valid?(code)
+    # Validate code
     User::valid? code, @secret
   end
 
-  def update_secret(secret)
+  def login(code)
+    # Validate code, and update last_login
+    # if successful, raises an error
+    raise AppError.new ERR_LOGIN_CODE unless valid? code
+    $db.execute <<-SQL, [Time.new.to_i, @id]
+      update users set last_login = ? where id = ?
+    SQL
+  end
+
+  def update_secret(secret, code=nil)
+    raise AppError.new ERR_LOGIN_CODE unless code == nil || User.valid?(code, secret)
     $db.execute <<-SQL, [secret.to_s, @name.to_s]
-      update users set secret=? where name=?
+      update users set secret = ? where name = ?
     SQL
   end
 
   class << self
 
+    def valid?(code, secret)
+      totp = ROTP::TOTP.new secret
+      totp.verify code, drift_behind: 15
+    end
+
     def exist?(name)
-      $db.execute("select count(*) from users where name=?", [name.downcase])[0][0] == 1
+      $db.execute("select count(*) from users where name = ?", [name.downcase])[0][0] == 1
     end
 
     def count
@@ -47,16 +64,24 @@ class User
     end
 
     def list
-      $db.execute("select name from users")
+      $db.execute("select name from users").map { |row| row.first }
+    end
+
+    def create(name, secret, code=nil)
+      # If code is given, this will
+      # verify and raise on error
+      name.downcase!
+      raise AppError.new ERR_EXISTS if exist? name
+      raise AppError.new ERR_BAD_NAME unless name.match /\A[a-z0-9-_.]{3,}\Z/
+      raise AppError.new ERR_LOGIN_CODE unless code == nil || valid?(code, secret)
+      $db.execute <<-SQL, [name, secret, Time.new.to_i]
+        insert into users (name, secret, last_login) values (?, ?, ?)
+      SQL
+      User.new name
     end
 
     def make_secret
       ROTP::Base32.random_base32
-    end
-
-    def valid?(code, secret)
-      totp = ROTP::TOTP.new secret
-      totp.verify code, drift_behind: 30
     end
 
   end

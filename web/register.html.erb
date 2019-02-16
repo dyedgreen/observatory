@@ -16,19 +16,8 @@
       <p class="error"><%= error %></p>
       <% end %>
 
-      <img class="qr" src="<%= qr_secret %>">
-      <p class="code"><%=
-        s = ""
-        secret.split("").each_slice(4).with_index do |slice, i|
-          s << slice.join
-          if i == 3
-            s << "<br>"
-          elsif i < 7
-            s << " "
-          end
-        end
-        s
-      %></p>
+      <img class="qr" src="<%= qr_code secret %>">
+      <p class="code"><%= pretty_print_secret secret %></p>
 
       <input name="username" type="text" value="<%= request.POST['username'] %>" placeholder="Username">
       <input name="code" type="number" placeholder="Enter Code" autocomplete="off">

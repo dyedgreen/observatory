@@ -8,94 +8,82 @@ require "./views/base.rb"
 
 module Views
 
-  class Protected < Base
+  class Auth < Base
 
-    SESSION_TIMEOUT = 60 * 15 # in seconds
-
-    middleware << proc {
-      use Rack::Session::Cookie, secret: ENV["session_secret"]
-    }
+    SESSION_TIMEOUT  = 60 * 15 # in seconds, time until inactive session terminates
+    SESSION_DURATION = 24 * 60 * 60 # in seconds, time until a session fully expires
 
     def user?
-      unless session["time"] && session["time"] < Time.new.to_i - SESSION_TIMEOUT
-        session["time"] = Time.new.to_i
-        return session["user"] ? session["user"] : nil
-      end
-      nil
+      session["auth_user"] = nil unless session["auth_start"] || 0 + SESSION_DURATION < Time.new.to_i
+      session["auth_user"] = nil unless session["auth_time"] || 0 + SESSION_TIMEOUT < Time.new.to_i
+      session["auth_time"] = Time.new.to_i if session["auth_user"]
+      session["auth_user"]
     end
 
-    def login(user)
-      raise ArgumentError, "Uses does not exist" unless ::User.exist? user
-      session["user"] = user.downcase
-      session["time"] = Time.new.to_i
+    def login(username, code)
+      user = ::User.new username
+      user.login code
+      session["auth_user"] = user.name
+      session["auth_time"] = Time.new.to_i
+      session["auth_start"] = Time.new.to_i
+    end
+
+    def fake_login
+      # To create temporary fake users
+      # on initial application load
+      session["auth_user"] = ""
+      session["auth_time"] = Time.new.to_i
+      session["auth_start"] = Time.new.to_i
     end
 
     def logout
-      session["user"] = nil
+      session["auth_user"] = nil
+    end
+
+  end # Auth
+
+  class Protected < Auth
+
+    before do
+      unless user?
+        flash[:login_target] = request.path
+        redirect "/login"
+      end
     end
 
   end # Protected
 
-  class User < Protected
+  class User < Auth
+
+    LOGGED_IN_PATH = "/dashboard" # Default login target
 
     before do
-      unless user? || request.path[/login|register/]
+      if ["/account", "/register"].include?(request.path) && !user?
+        flash[:login_target] = request.path
         redirect "/login"
+      elsif request.path == "/login" && user?
+        redirect LOGGED_IN_PATH
       end
-      if !user? && request.path["register"] && ::User.count > 0
-        redirect "/login"
-      end
-      if user? && request.path["login"]
-        redirect "/account"
-      end
-    end
-
-    get "/account" do
-      render_register ::User.make_secret, nil, "account.html.erb"
-    end
-
-    post "/account" do
-      secret = request.POST["secret"]
-      code_old = request.POST["code_old"]
-      code_new = request.POST["code_new"]
-      error = nil
-
-      if secret.length != 32
-        error = "Something went wrong, please reload the page."
-      elsif !::User.valid? code_new, secret
-        error = "The new code is invalid."
-      elsif !::User.exist? user?
-        error = "User does not exist."
-      elsif !::User.new(user?).valid? code_old
-        error = "The old code is invalid."
-      end
-
-      unless error
-        ::User.new(user?).update_secret secret
-        redirect "/"
-      end
-
-      render_register secret, error, "account.html.erb"
     end
 
     get "/login" do
-      render "login.html.erb".to_sym, locals: {:error => nil}
+      render "login.html.erb".to_sym, locals: { :error => nil }
     end
 
     post "/login" do
-      username = request.POST["username"]
-      error = nil
-      if !::User.exist? username
-        error = "User does not exist."
-      elsif !::User.new(username).valid? request.POST["code"]
-        error = "Invalid code."
+      # First time login (no users in db)
+      if ::User.count == 0
+        fake_login
+        flash[:message] = "Logged in with temporary user, please create a new user immediately."
+        redirect LOGGED_IN_PATH
       end
-
-      unless error
-        login username
-        redirect "/"
+      # Normal login flow
+      begin
+        login request.POST["username"], request.POST["code"]
+        redirect flash[:login_target] ? flash[:login_target] : LOGGED_IN_PATH
+      rescue AppError => err
+        render "login.html.erb".to_sym, locals: { :error => err.to_s }
       end
-      render "login.html.erb".to_sym, locals: {:error => error}
     end
 
     get "/logout" do
@@ -103,41 +91,47 @@ module Views
       redirect "/login"
     end
 
+    get "/account" do
+      render "account.html.erb".to_sym, locals: { :error => nil, :secret => ::User.make_secret }
+    end
+
+    post "/account" do
+      begin
+        user = ::User.new user?
+        raise AppError.new("The old login code is not valid.") unless user.valid? request.POST["code_old"]
+        user.update_secret request.POST["secret"], request.POST["code_new"]
+        flash[:message] = "Updated secret for user #{user?}"
+        redirect LOGGED_IN_PATH
+      rescue AppError => err
+        render "account.html.erb" .to_sym, locals: { :error => err.to_s, :secret => request.POST["secret"]}
+      end
+    end
+
     get "/register" do
-      render_register ::User.make_secret, nil
+      render "register.html.erb".to_sym, locals: { :error => nil, :secret => ::User.make_secret }
     end
 
     post "/register" do
-      secret = request.POST["secret"]
-      code = request.POST["code"]
-      username = request.POST["username"].downcase
-      error = nil
-
-      if secret.length != 32
-        error = "Something went wrong, please reload the page."
-      elsif username[/\A[a-z0-9]{3,64}\Z/] != username
-        error = "Please specify a valid username."
-      elsif !::User.valid? code, secret
-        error = "The code is invalid."
-      elsif ::User.exist? username
-        error = "This username is taken."
+      begin
+        ::User.create request.POST["username"], request.POST["secret"], request.POST["code"]
+        flash[:message] = "Created user #{request.POST["username"]}"
+        redirect LOGGED_IN_PATH
+      rescue AppError => err
+        render "register.html.erb" .to_sym, locals: { :error => err.to_s, :secret => request.POST["secret"]}
       end
-
-      unless error
-        ::User.new username, secret
-        login username
-        redirect "/"
-      end
-
-      render_register secret, error
     end
 
-    def render_register(secret, error, template="register.html.erb")
-      render template.to_sym, locals: {
-        :error => error ? error : nil,
-        :qr_secret => qr_code(secret),
-        :secret => secret,
-      }
+    def pretty_print_secret(secret)
+      s = ""
+      secret.split("").each_slice(4).with_index do |slice, i|
+        s << slice.join
+        if i == 3
+          s << "<br>"
+        elsif i < 7
+          s << " "
+        end
+      end
+      s
     end
 
     def qr_code(secret)

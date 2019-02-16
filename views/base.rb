@@ -30,6 +30,10 @@ module Views
 
   class Base < Scorched::Controller
 
+    middleware << proc {
+      use Rack::Session::Cookie, secret: ENV["session_secret"]
+    }
+
     render_defaults[:dir] = "./web"
 
     def partial(file)
