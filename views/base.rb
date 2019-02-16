@@ -77,4 +77,15 @@ module Views
 
   end # Static
 
+  class Root < Base
+
+    get "/favicon.ico" do
+      path = "#{render_defaults[:dir]}/static/favicon.ico"
+      halt 404 unless File.exist? path
+      response["Content-Type"] = "image/x-icon"
+      File.open(path).read
+    end
+
+  end # Root
+
 end

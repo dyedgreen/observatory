@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>Urls</title>
+    <%= partial "meta_tags.html" %>
+    <link href="/static/styles/base.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <div class="page">
+      <div class="header">
+        <h1>Urls</h1>
+        <%= partial "main_menu.html" %>
+      </div>
+
+      <% ::Url.all.each do |url| %>
+        <%= url.target %><br>
+      <% end %>
+    </div>
+  </body>
+
+</html>

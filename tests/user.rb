@@ -26,13 +26,26 @@ class TestUser < Test::Unit::TestCase
   end
 
   def test_new
-    a = User.new "test"
+    User.create "test-new", User.make_secret
+    a = User.new "test-new"
     b = User.new a.id
     assert_equal a, b
   end
 
+  def test_equal
+    a = User.create "test-eq-a", User.make_secret
+    b = User.create "text-eq-b", User.make_secret
+    c = User.new a.id
+    assert_true a == c
+    assert_false a == b
+    assert_true a == a
+    assert_false a == nil
+    assert_false b == 345
+  end
+
   def test_exist
-    assert_true User.exist? "test"
+    User.create "test-exist", User.make_secret
+    assert_true User.exist? "test-exist"
     assert_false User.exist? "peter-parker"
   end
 

@@ -12,10 +12,12 @@ module Views
     get "/:public_id" do
       halt 404 unless ::Url.exist? captures[:public_id]
       url = ::Url.new captures[:public_id]
-      # TODO: Track metrics, ref, etc...
+      meta = Hash.new.merge! request.GET
+      meta.merge!({ "user_agent" => request.user_agent })
+      url.hit meta
       redirect url.target
     end
 
-  end
+  end # Refer
 
 end
