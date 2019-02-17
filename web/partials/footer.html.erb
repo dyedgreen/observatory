@@ -1,0 +1,12 @@
+<div class="footer">
+  <img class="logo" src="/static/images/logo.svg">
+  <% if user? %>
+  <a href="/dashboard">Home</a>
+  <a href="/account">Account</a>
+  <a href="/register">Register</a>
+  <% else %>
+  <a href="/">Home</a>
+  <a href="/login">Login</a>
+  <% end %>
+  <a href="https://github.com/dyedgreen/url" target="_blank">GitHub</a>
+</div>

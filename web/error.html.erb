@@ -3,7 +3,7 @@
 
   <head>
     <title>Error <%= response.status %></title>
-    <%= partial "meta_tags.html" %>
+    <%= render "partials/meta_tags.html".to_sym %>
     <link href="/static/styles/error.css" rel="stylesheet" type="text/css">
   </head>
 
@@ -13,6 +13,7 @@
       <p><%= status_string response.status %>.</p>
       <a href="/" class="button">Go Home</a>
     </div>
+    <%= render "partials/footer.html.erb".to_sym %>
   </body>
 
 </html>

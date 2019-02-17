@@ -67,14 +67,18 @@ module Views
     end
 
     get "/login" do
-      render "login.html.erb".to_sym, locals: { :error => nil }
+      render(
+        "login.html.erb".to_sym,
+        locals: { :title => "Login", :error => nil },
+        layout: "layouts/form.html.erb".to_sym
+      )
     end
 
     post "/login" do
       # First time login (no users in db)
       if ::User.count == 0
         fake_login
-        flash[:message] = "Logged in with temporary user, please create a new user immediately."
+        flash[:message] = "Logged in with temporary user. Please register a new user immediately."
         redirect LOGGED_IN_PATH
       end
       # Normal login flow
@@ -82,7 +86,11 @@ module Views
         login request.POST["username"], request.POST["code"]
         redirect flash[:login_target] ? flash[:login_target] : LOGGED_IN_PATH
       rescue AppError => err
-        render "login.html.erb".to_sym, locals: { :error => err.to_s }
+        render(
+          "login.html.erb".to_sym,
+          locals: { :title => "Login", :error => err.to_s },
+          layout: "layouts/form.html.erb".to_sym
+        )
       end
     end
 
@@ -92,7 +100,11 @@ module Views
     end
 
     get "/account" do
-      render "account.html.erb".to_sym, locals: { :error => nil, :secret => ::User.make_secret }
+      render(
+        "account.html.erb".to_sym,
+        locals: { :title => "Account", :error => nil, :secret => ::User.make_secret },
+        layout: "layouts/form.html.erb".to_sym
+      )
     end
 
     post "/account" do
@@ -103,12 +115,20 @@ module Views
         flash[:message] = "Updated secret for user #{user?}"
         redirect LOGGED_IN_PATH
       rescue AppError => err
-        render "account.html.erb" .to_sym, locals: { :error => err.to_s, :secret => request.POST["secret"]}
+        render(
+          "account.html.erb".to_sym,
+          locals: { :title => "Account", :error => err.to_s, :secret => request.POST["secret"]},
+          layout: "layouts/form.html.erb".to_sym
+        )
       end
     end
 
     get "/register" do
-      render "register.html.erb".to_sym, locals: { :error => nil, :secret => ::User.make_secret }
+      render(
+        "register.html.erb".to_sym,
+        locals: { :title => "Register", :error => nil, :secret => ::User.make_secret },
+        layout: "layouts/form.html.erb".to_sym
+      )
     end
 
     post "/register" do
@@ -117,7 +137,11 @@ module Views
         flash[:message] = "Created user #{request.POST["username"]}"
         redirect LOGGED_IN_PATH
       rescue AppError => err
-        render "register.html.erb" .to_sym, locals: { :error => err.to_s, :secret => request.POST["secret"]}
+        render(
+          "register.html.erb" .to_sym,
+          locals: { :title => "Register", :error => err.to_s, :secret => request.POST["secret"]},
+          layout: "layouts/form.html.erb".to_sym
+        )
       end
     end
 

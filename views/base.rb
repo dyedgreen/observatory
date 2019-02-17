@@ -36,10 +36,6 @@ module Views
 
     render_defaults[:dir] = "./web"
 
-    def partial(file)
-      render "partials/#{file}".to_sym
-    end
-
     def status_string(status)
       STATUS_STR[status]
     end

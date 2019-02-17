@@ -184,3 +184,28 @@ form {
     }
   }
 }
+
+.footer {
+  width: $width-large;
+  max-width: 95%;
+  height: auto;
+  display: block;
+  margin: 100px auto 50px auto;
+  text-align: center;
+
+  .logo {
+    width: 40px;
+    display: block;
+    margin: 0 auto $padding * 2 auto;
+  }
+  a {
+    margin: 0 $padding;
+    font-size: $font-size * 0.8;
+    font-weight: $font-norm;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

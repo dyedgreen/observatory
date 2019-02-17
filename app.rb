@@ -9,7 +9,7 @@ require "./views/refer.rb"
 require "./views/url.rb"
 
 
-class App < Views::Base
+class App < Views::Auth
 
   get "/" do
     # Url.create("https://tilman.xyz/understanding-cvaes").public_id

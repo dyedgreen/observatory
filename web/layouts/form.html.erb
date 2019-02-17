@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title><%= title %></title>
+    <%= render "partials/meta_tags.html".to_sym %>
+    <link href="/static/styles/base.css" rel="stylesheet" type="text/css">
+  </head>
+
+  <body>
+    <form action="<%= request.path %>" method="POST">
+      <h1><%= title %></h1>
+
+      <% if error %>
+      <p class="error"><%= error %></p>
+      <% end %>
+
+      <%= yield %>
+    </form>
+    <%= render "partials/footer.html.erb".to_sym %>
+  </body>
+
+</html>
