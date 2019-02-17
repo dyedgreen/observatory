@@ -14,8 +14,8 @@ module Views
     SESSION_DURATION = 24 * 60 * 60 # in seconds, time until a session fully expires
 
     def user?
-      session["auth_user"] = nil unless session["auth_start"] || 0 + SESSION_DURATION < Time.new.to_i
-      session["auth_user"] = nil unless session["auth_time"] || 0 + SESSION_TIMEOUT < Time.new.to_i
+      session["auth_user"] = nil unless (session["auth_start"] || 0) + SESSION_DURATION > Time.new.to_i
+      session["auth_user"] = nil unless (session["auth_time"] || 0) + SESSION_TIMEOUT > Time.new.to_i
       session["auth_time"] = Time.new.to_i if session["auth_user"]
       session["auth_user"]
     end
