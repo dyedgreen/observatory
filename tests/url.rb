@@ -65,9 +65,9 @@ class TestUrl < Test::Unit::TestCase
     urls.each { |u| Url.create u }
     list_a = Url.list 8, 0
     list_b = Url.list 8, 1
-    assert_equal 8, list_a.count
-    assert_equal 8, list_b.count
-    assert_equal list_a, list_a - list_b
+    assert_equal 8, list_a[0].count
+    assert_equal 8, list_b[0].count
+    assert_equal list_a[0], list_a[0] - list_b[0]
   end
 
 end

@@ -1,0 +1,72 @@
+// Layout
+
+.page {
+  width: $width-large;
+  max-width: 95%;
+  height: auto;
+  display: block;
+  margin: 50px auto;
+
+  .header {
+    $height: $font-size * 2.5 + $padding;
+    height: $height;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 $padding * 3 0;
+
+    h1 {
+      max-width: 50%;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .menu {
+      height: 100%;
+      width: auto;
+      display: block;
+
+      a {
+        height: $height;
+        padding: $height/2 0 0 $padding*2;
+        display: inline-block;
+        font-size: $font-size;
+        font-weight: $font-bold;
+        text-decoration: none;
+        text-transform: capitalize;
+        line-height: $height/2;
+        transition: $transition-fast;
+
+        &:hover {
+          color: $primary;
+        }
+      }
+    }
+  }
+}
+
+.footer {
+  width: $width-large;
+  max-width: 95%;
+  height: auto;
+  display: block;
+  margin: 100px auto 50px auto;
+  text-align: center;
+
+  .logo {
+    width: 40px;
+    display: block;
+    margin: 0 auto $padding * 2 auto;
+  }
+  a {
+    margin: 0 $padding;
+    font-size: $font-size * 0.8;
+    font-weight: $font-norm;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

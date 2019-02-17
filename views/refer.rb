@@ -15,7 +15,7 @@ module Views
       meta = Hash.new.merge! request.GET
       meta.merge!({ "user_agent" => request.user_agent })
       url.hit meta
-      redirect url.target
+      redirect (url.target.match(/\Ahttps?:\/\//) ? "" : "http://") + url.target
     end
 
   end # Refer

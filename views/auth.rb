@@ -112,7 +112,7 @@ module Views
         user = ::User.new user?
         raise AppError.new("The old login code is not valid.") unless user.valid? request.POST["code_old"]
         user.update_secret request.POST["secret"], request.POST["code_new"]
-        flash[:message] = "Updated secret for user #{user?}"
+        flash[:message] = "Updated secret for user #{user?}."
         redirect LOGGED_IN_PATH
       rescue AppError => err
         render(
@@ -134,7 +134,7 @@ module Views
     post "/register" do
       begin
         ::User.create request.POST["username"], request.POST["secret"], request.POST["code"]
-        flash[:message] = "Created user #{request.POST["username"]}"
+        flash[:message] = "Created user #{request.POST["username"]}."
         redirect LOGGED_IN_PATH
       rescue AppError => err
         render(

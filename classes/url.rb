@@ -31,7 +31,7 @@ class Url
     @id = row[0][0]
     @public_id = row[0][1]
     @target = row[0][2]
-    @created = Time.new row[0][3]
+    @created = Time.at row[0][3]
   end
 
   def ==(other)
@@ -43,25 +43,8 @@ class Url
     UrlHit.create self, meta
   end
 
-  def hits(limit=nil, page=0)
-    if limit
-      rows = $db.execute "select id from url_hits limit ?, ? order by created", [limit, page]
-    else
-      rows = $db.execute "select id from url_hits order by created"
-    end
-    rows.map {|row| UrlHit.new row[0]}
-  end
-
-  def hit_count(bin_size=nil)
-    # bin_size is in seconds
-    if bin_size
-      rows = $db.execute <<-SQL, [@id, bin_size]
-        select count(), created from url_hits where url = ? group by created/? order by created
-      SQL
-      
-    else
-      rows = $db.execute "select id from url_hits order by created"
-    end
+  def hits
+    UrlHitArray.new self
   end
 
   alias_method :to_s, :target
@@ -96,11 +79,15 @@ class Url
 
     def list(limit=nil, page=0)
       if limit
-        rows = $db.execute "select id from urls limit ?, ? order by created", [limit, page]
+        # If limit is given, return list and total page count
+        rows = $db.execute "select id from urls order by created desc limit ? offset ?", [limit, page*limit]
+        total = $db.execute("select count() from urls")[0][0]
+        rows = rows.map { |row| Url.new row[0] }
+        [rows, total % limit == 0 ? total / limit : total / limit + 1]
       else
-        rows = $db.execute "select id from urls order by created"
+        rows = $db.execute "select id from urls order by created desc"
+        rows.map { |row| Url.new row[0] }
       end
-      rows.map {|row| Url.new row[0]}
     end
 
     alias_method :all, :list
@@ -130,7 +117,12 @@ class UrlHit
     @utm_term = row[0][5]
     @utm_content = row[0][6]
     @user_agent = row[0][7]
-    @created = Time.new row[0][8]
+    @created = Time.at row[0][8]
+  end
+
+  def <=>(other)
+    raise ArgumentError unless other.is_a? UrlHit
+    @created <=> other.created
   end
 
   class << self
@@ -152,3 +144,39 @@ class UrlHit
   end
 
 end # UrlHit
+
+class UrlHitArray
+
+  include Enumerable
+
+  def initialize(url)
+    raise ArgumentError unless url.is_a? Url
+    @url = url
+  end
+
+  def each
+    unless @hits
+      rows = $db.execute <<-SQL, [@url.id]
+        select id from url_hits where url = ? order by created desc
+      SQL
+      @hits = rows.map { |row| UrlHit.new row[0] }
+    end
+    @hits.each
+  end
+
+  def count(bin_size=nil)
+    # bin_size is given in seconds
+    if bin_size
+      rows = $db.execute <<-SQL, [@url.id, bin_size]
+        select count(), created from url_hits where url = ? group by created/? order by created desc
+      SQL
+      return rows.map { |row| [row[0], Time.at(row[1])] }
+    end
+    @count = $db.execute("select count() from url_hits where url = ?", [@url.id])[0][0] unless @count
+    @count
+  end
+
+  alias_method :length, :count
+  alias_method :size, :count
+
+end #UrlHitArray

@@ -27,6 +27,7 @@ RUN gem cleanup \
           /var/tmp/*
 
 COPY . .
+RUN mkdir data
 ENV SESSION_SECRET "make_sure_to_set_in_docker_compose"
 ENV RACK_ENV "development"
 EXPOSE 80

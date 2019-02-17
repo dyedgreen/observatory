@@ -1,0 +1,9 @@
+# Ignore database files
+data
+
+# Ignore system and non-app files
+.*
+Dockerfile
+docker-compose.yml
+LICENSE
+README

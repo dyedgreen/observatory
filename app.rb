@@ -12,25 +12,14 @@ require "./views/url.rb"
 class App < Views::Auth
 
   get "/" do
-    # Url.create("https://tilman.xyz/understanding-cvaes").public_id
-    (Url.new "https://tilman.xyz").public_id
-    # render "index.html".to_sym
-  end
-
-  get "/test" do
-    request.user_agent
-  end
-
-  get "/dashboard" do
-    flash[:message]
+    render "index.html".to_sym
   end
 
   controller "/static/", Views::Static
   controller "/r/", Views::Refer
 
+  # controller "/dashboard", Views::Url
   controller "/url", Views::Url
-
-  # Make "/dashboard/" a controller
 
   controller "/", Views::Root # Provides special paths
   Views::Root << { pattern: "/", target: Views::User} # Provides login and account management

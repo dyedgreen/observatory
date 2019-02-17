@@ -1,0 +1,73 @@
+// Styles for analytics pages
+
+@import "base";
+
+
+.item-list {
+  width: 100%;
+  height: auto;
+  display: block;
+  list-style: none;
+
+  li {
+    width: 100%;
+    height: auto;
+    padding: 0 0 $padding 0;
+
+    h1 {
+      font-size: $font-size * 1.5;
+      line-height: $font-size * 2;
+    }
+    p {
+      font-size: $font-size;
+      line-height: $font-size;
+    }
+    .button {
+      margin: $padding $padding 0 0;
+      background: $grey;
+    }
+  }
+  li + li {
+    border-top: 2px solid $grey;
+  }
+
+  .pagination {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin: $padding * 3 0 0 0;
+
+    .placeholder, .button {
+      display: block;
+      width: $font-size * 5;
+    }
+  }
+}
+
+.action-new-url {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin: $padding * 3 0;
+
+  input {
+    display: inline-block;
+    margin: 0;
+  }
+  .button {
+    margin-left: $padding;
+  }
+}
+
+.empty {
+  width: 100%;
+  margin: $padding * 10 0;
+  text-align: center;
+
+  img {
+    width: $width-small / 3;
+    max-width: 90%;
+    margin: $padding * 2 0;
+  }
+}

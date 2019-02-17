@@ -1,0 +1,21 @@
+// Defined interface constants
+
+
+$font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Oxygen-Sans, Ubuntu, Cantarell, Helvetica, Arial, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+$font-mono: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+            "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
+            "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+
+$width-small: 300px;
+$width-large: 600px;
+$padding: 5px;
+$font-size: 18px;
+$font-bold: 800;
+$font-norm: 500;
+
+$shadow-big: 0 2px 15px rgba(0,0,0,0.1);
+$shadow-small: 0 1px 10px rgba(0,0,0,0.1);
+
+$transition-fast: .1s;

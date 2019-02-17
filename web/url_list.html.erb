@@ -1,23 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
+<ul class="item-list">
+  <%
+  PAGE_SIZE = 5
+  urls = ::Url.list(PAGE_SIZE, page)
+  urls.first.each do |url|
+  %>
+    <li>
+      <h1><%= url.target %></h1>
+      <p><%= public_target url %> - <%= url.hits.count %> total hits</p>
+      <a href="/r/<%= url.public_id %>" class="button" target="_blank">Open</a>
+      <a href="/url/<%= url.public_id %>" class="button">View Details</a>
+      <a href="/url/<%= url.public_id %>/delete" class="button">Delete</a>
+    </li>
+  <% end %>
 
-  <head>
-    <title>Urls</title>
-    <%= partial "meta_tags.html" %>
-    <link href="/static/styles/base.css" rel="stylesheet" type="text/css">
-  </head>
+  <% if urls[1] == 0 %>
+    <%= render "partials/empty.html.erb".to_sym %>
+  <% else %>
+    <span class="pagination">
+      <% unless page < 1 %>
+        <a href="/url?page=<%= page-1 %>" class="button">Newer</a>
+      <% else %><span class="placeholder"></span><% end %>
 
-  <body>
-    <div class="page">
-      <div class="header">
-        <h1>Urls</h1>
-        <%= partial "main_menu.html" %>
-      </div>
+      <p><%= page+1 %>/<%= urls[1] %></p>
 
-      <% ::Url.all.each do |url| %>
-        <%= url.target %><br>
-      <% end %>
-    </div>
-  </body>
-
-</html>
+      <% if page + 1 < urls[1] %>
+        <a href="/url?page=<%= page+1 %>" class="button">Older</a>
+      <% else %><span class="placeholder"></span><% end %>
+    </span>
+  <% end %>
+</ul>

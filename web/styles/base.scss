@@ -1,26 +1,9 @@
 // Base styles
 
 @import "colors";
+@import "constants";
+@import "layout";
 
-
-$font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        Oxygen-Sans, Ubuntu, Cantarell, Helvetica, Arial, sans-serif,
-        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-$font-mono: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
-            "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono",
-            "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
-
-$width-small: 300px;
-$width-large: 600px;
-$padding: 5px;
-$font-size: 18px;
-$font-bold: 800;
-$font-norm: 500;
-
-$shadow-big: 0 2px 15px rgba(0,0,0,0.1);
-$shadow-small: 0 1px 10px rgba(0,0,0,0.1);
-
-$transition-fast: .1s;
 
 * {
   font-family: $font;
@@ -85,6 +68,28 @@ p {
   &:hover {
     box-shadow: $shadow-big;
   }
+  &.red {
+    background: $error;
+  }
+  &.grey {
+    background: $grey;
+  }
+}
+
+.notification {
+  width: 100%;
+  height: auto;
+  padding: $padding * 2;
+  display: block;
+  margin: $padding 0;
+
+  font-size: $font-size;
+  font-weight: $font-bold;
+  line-height: $font-size + $padding;
+
+  border-radius: $padding;
+  color: #fff;
+  background: $primary;
 }
 
 // Forms
@@ -142,70 +147,5 @@ form {
     font-family: $font-mono;
     font-weight: font-bold;
     text-align: center;
-  }
-}
-
-// Layout
-
-.page {
-  width: $width-large;
-  max-width: 95%;
-  height: auto;
-  display: block;
-  margin: 50px auto;
-
-  .header {
-    $height: $font-size * 2.5 + $padding;
-    height: $height;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-
-    .menu {
-      height: 100%;
-      width: auto;
-      display: block;
-
-      a {
-        height: $height;
-        padding: $height/2 0 0 $padding*2;
-        display: inline-block;
-        font-size: $font-size;
-        font-weight: $font-bold;
-        text-decoration: none;
-        text-transform: capitalize;
-        line-height: $height/2;
-        transition: $transition-fast;
-
-        &:hover {
-          color: $primary;
-        }
-      }
-    }
-  }
-}
-
-.footer {
-  width: $width-large;
-  max-width: 95%;
-  height: auto;
-  display: block;
-  margin: 100px auto 50px auto;
-  text-align: center;
-
-  .logo {
-    width: 40px;
-    display: block;
-    margin: 0 auto $padding * 2 auto;
-  }
-  a {
-    margin: 0 $padding;
-    font-size: $font-size * 0.8;
-    font-weight: $font-norm;
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }
