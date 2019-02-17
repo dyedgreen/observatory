@@ -31,7 +31,7 @@ module Views
   class Base < Scorched::Controller
 
     middleware << proc {
-      use Rack::Session::Cookie, secret: ENV["session_secret"]
+      use Rack::Session::Cookie, secret: ENV["SESSION_SECRET"]
     }
 
     render_defaults[:dir] = "./web"

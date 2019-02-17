@@ -27,7 +27,8 @@ RUN gem cleanup \
           /var/tmp/*
 
 COPY . .
-ENV session_secret "make_sure_to_set_in_docker_compose"
+ENV SESSION_SECRET "make_sure_to_set_in_docker_compose"
+ENV RACK_ENV "development"
 EXPOSE 80
 
 CMD ["rackup", "-p", "80", "-o", "0.0.0.0"]

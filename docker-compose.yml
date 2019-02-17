@@ -7,7 +7,7 @@ services:
     volumes:
       - .:/usr/var/app
     environment:
-      - session_secret=sfo34htoi4nrfnaewoig45
+      - SESSION_SECRET=sfo34htoi4nrfnaewoig45
     command: rerun -p "**/*.{rb,ru}" --background "rackup -p 80 -o 0.0.0.0"
   test:
     build: .
