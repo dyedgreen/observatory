@@ -32,6 +32,13 @@ class TestUser < Test::Unit::TestCase
     assert_equal a, b
   end
 
+  def test_last_login
+    now = Time.new
+    User.create "test-last-login", User.make_secret
+    u = User.new "test-last-login"
+    assert_equal u.last_login.to_i, now.to_i
+  end
+
   def test_equal
     a = User.create "test-eq-a", User.make_secret
     b = User.create "text-eq-b", User.make_secret

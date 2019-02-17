@@ -25,7 +25,7 @@ class User
     @id = row.first[0]
     @name = row.first[1]
     @secret = row.first[2]
-    @last_login = row.first[3]
+    @last_login = Time.at row.first[3]
   end
 
   def ==(other)

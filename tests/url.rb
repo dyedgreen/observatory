@@ -54,10 +54,20 @@ class TestUrl < Test::Unit::TestCase
   end
 
   def test_list
-    urls = "abcdefg".split.map { |l| "www.#{l}.com" }
+    urls = "abcdefg".split("").map { |l| "www.#{l}.com" }
     urls.each { |u| Url.create u }
     list = Url.list
     urls.each { |u| assert_true list.any? { |url| u == url.target } }
+  end
+
+  def test_paginated_list
+    urls = "hijklmnopqrstuvw".split("").map { |l| "www.#{l}.com" }
+    urls.each { |u| Url.create u }
+    list_a = Url.list 8, 0
+    list_b = Url.list 8, 1
+    assert_equal 8, list_a.count
+    assert_equal 8, list_b.count
+    assert_equal list_a, list_a - list_b
   end
 
 end
