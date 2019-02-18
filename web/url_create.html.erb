@@ -1,2 +1,2 @@
-<input name="target" type="text" value="<%= request.POST['target'] %>" placeholder="Enter url ...">
+<input name="target" type="text" value="<%= escape_html request.POST['target'] %>" placeholder="Enter url ...">
 <input type="submit" class="button" value="Create">

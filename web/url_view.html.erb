@@ -6,11 +6,11 @@
   <h3>Referrals and Sources</h3>
   TODO: aggregate ref and utm_source
 <% else %>
-  <%= render "partials/empty.html.erb".to_sym, locals: { :message => "No recorded hits for <i>#{url.target}</i>." } %>
+  <%= render "partials/empty.html.erb".to_sym, locals: { :message => "No recorded hits for <i>#{escape_html url.target}</i>." } %>
 <% end %>
 
 <h3>Details</h3>
-<p><strong>Target:</strong> <%= url.target %></p>
+<p><strong>Target:</strong> <%= escape_html url.target %></p>
 <p><strong>Public Id:</strong> <%= url.public_id %></p>
 <p><strong>Created:</strong> <%= url.created.to_s.sub " +0000", "" %></p>
 

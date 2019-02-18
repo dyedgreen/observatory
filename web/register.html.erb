@@ -3,7 +3,7 @@
 <img class="qr" src="<%= qr_code secret %>">
 <p class="code"><%= pretty_print_secret secret %></p>
 
-<input name="username" type="text" value="<%= request.POST['username'] %>" placeholder="Username">
+<input name="username" type="text" value="<%= escape_html request.POST['username'] %>" placeholder="Username">
 <input name="code" type="number" placeholder="Enter Code" autocomplete="off">
 <input name="secret" type="text" value="<%= secret %>" style="display:none">
 <input type="submit" class="button" value="Register">

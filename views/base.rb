@@ -40,9 +40,15 @@ module Views
       STATUS_STR[status]
     end
 
+    def escape_html(str)
+      str.gsub("<", "&lt;").gsub(">", "&gt;")
+    end
+
   end # Base
 
   class Static < Base
+
+    config[:cache_templates] = true
 
     # Serve scss style sheets
     get "/styles/*.css" do |file|

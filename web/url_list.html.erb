@@ -5,7 +5,7 @@
   urls.first.each do |url|
   %>
     <li>
-      <h1><%= url.target %></h1>
+      <h1><%= escape_html url.target %></h1>
       <p><%= public_target url %> - <%= url.hits.count %> total hits</p>
       <a href="/r/<%= url.public_id %>" class="button" target="_blank">Visit</a>
       <a href="/url/<%= url.public_id %>" class="button">View Details</a>
