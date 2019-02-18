@@ -7,9 +7,8 @@
     <li>
       <h1><%= url.target %></h1>
       <p><%= public_target url %> - <%= url.hits.count %> total hits</p>
-      <a href="/r/<%= url.public_id %>" class="button" target="_blank">Open</a>
+      <a href="/r/<%= url.public_id %>" class="button" target="_blank">Visit</a>
       <a href="/url/<%= url.public_id %>" class="button">View Details</a>
-      <a href="/url/<%= url.public_id %>/delete" class="button">Delete</a>
     </li>
   <% end %>
 

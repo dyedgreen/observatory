@@ -17,11 +17,11 @@
 
     h1 {
       max-width: 50%;
+      margin: 0;
       text-overflow: ellipsis;
       white-space: nowrap;
       overflow: hidden;
     }
-
     .menu {
       height: 100%;
       width: auto;
@@ -43,6 +43,28 @@
         }
       }
     }
+
+    @media (max-width: $width-large * 0.9) {
+      height: auto;
+      flex-direction: column;
+      h1 {
+        width: 100%;
+        max-width: 100%;
+      }
+      .menu {
+        height: auto;
+        width: 100%;
+        a {
+          height: $font-size;
+          line-height: $font-size;
+          padding: $padding $padding*2 0 0;
+        }
+      }
+    }
+  }
+
+  h1, h2, h3 {
+    margin: $padding 0;
   }
 }
 

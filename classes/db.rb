@@ -6,6 +6,10 @@ $db = SQLite3::Database.new "./data/url.db"
 # Initialize database
 
 $db.execute <<-SQL
+  PRAGMA foreign_keys = ON;
+SQL
+
+$db.execute <<-SQL
   create table if not exists users (
     id integer primary key autoincrement,
     name varchar(64) unique not null,
@@ -22,6 +26,7 @@ $db.execute <<-SQL
     created integer not null
   );
 SQL
+
 $db.execute <<-SQL
   create table if not exists url_hits (
     id integer primary key autoincrement,

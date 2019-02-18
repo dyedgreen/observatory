@@ -35,8 +35,8 @@ module Views
       halt 404 unless ::Url.exist? captures[:public_id]
       url = ::Url.new captures[:public_id]
       render(
-        url.target,
-        locals: { :title => url.target[/([^\/.]+\.)?[^\/.]+\.[^\/.]{3,}/][/[^.]+\.[^.]+\Z/] },
+        "url_view.html.erb".to_sym,
+        locals: { :title => url_name(url), :url => url },
         layout: "layouts/page.html.erb".to_sym
       )
     end
@@ -51,35 +51,21 @@ module Views
     end
 
     post "/:public_id/delete" do
-      begin
-        halt 404 unless ::Url.exist? captures[:public_id]
-        url = ::Url.new captures[:public_id]
-        url.delete
-        flash[:message] = "Deleted url '#{url.target}'"
-        redirect "/url"
-      rescue AppError => e
-        render(
-          "partials/confirm_delete.html".to_sym,
-          locals: { :title => "Delete Url", :error => e.to_s },
-          layout: "layouts/form.html.erb".to_sym
-        )
-      end
-    end
-
-    get "/:public_id/hits" do
       halt 404 unless ::Url.exist? captures[:public_id]
       url = ::Url.new captures[:public_id]
-
-      page = request.GET["page"] || 0
-      page
-
-      (url.hits.map { |v| v.created }).join "<br>"
+      url.delete
+      flash[:message] = "Deleted url '#{url.target}'"
+      redirect "/url"
     end
 
     def public_target(url)
       "#{request.host_with_port.sub /:80(?!\d)/, ''}/r/#{url.public_id}"
     end
 
-  end # Refer
+    def url_name(url)
+      url.target[/([^\/.]+\.)?[^\/.]+\.([^\/.]{3,}|co\.uk)/][/[^\/.]+\.([^\/.]{3,}|co\.uk)\Z/]
+    end
+
+  end # Url
 
 end

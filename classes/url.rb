@@ -39,6 +39,11 @@ class Url
     @id == other.id
   end
 
+  def delete
+    $db.execute "delete from url_hits where url = ?", [@id]
+    $db.execute "delete from urls where id = ?", [@id]
+  end
+
   def hit(meta={})
     UrlHit.create self, meta
   end
