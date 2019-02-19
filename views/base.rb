@@ -41,14 +41,23 @@ module Views
     end
 
     def escape_html(str)
+      return str unless str.is_a? String
       str.gsub("<", "&lt;").gsub(">", "&gt;")
+    end
+
+    def format_time(time)
+      time.to_s.sub " +0000", ""
+    end
+
+    def format_date(time)
+      time.to_s[/\d+-\d+-\d+/]
     end
 
   end # Base
 
   class Static < Base
 
-    config[:cache_templates] = true
+    config[:cache_templates] = true unless ENV["RACK_ENV"] == "development"
 
     # Serve scss style sheets
     get "/styles/*.css" do |file|

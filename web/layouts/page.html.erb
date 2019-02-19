@@ -11,7 +11,7 @@
 
     <div class="page">
       <% if flash[:message] %>
-      <span class="notification"><%= flash[:message] %></span>
+      <span class="notification"><%= escape_html flash[:message] %></span>
       <% end %>
       <%= render "partials/header.html.erb".to_sym, locals: { :title => title } %>
       <%= render "partials/quick_actions.html".to_sym %>

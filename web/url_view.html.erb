@@ -1,6 +1,10 @@
 <% if url.hits.count > 0 %>
   <h3><%= url.hits.count %> Total Hits</h3>
-  TODO: Hit graph over time
+  <img class="line-plot" src="<%= url.hits.plot(color:"738290").base64 %>">
+  <p>
+    Showing hit data from <%= format_date url.hits.first.created %> until
+    <%= format_date url.hits.last.created %>.
+  </p>
   <h3>Browsers and Devices</h3>
   TODO: browser and devices from user agent
   <h3>Referrals and Sources</h3>
@@ -12,7 +16,8 @@
 <h3>Details</h3>
 <p><strong>Target:</strong> <%= escape_html url.target %></p>
 <p><strong>Public Id:</strong> <%= url.public_id %></p>
-<p><strong>Created:</strong> <%= url.created.to_s.sub " +0000", "" %></p>
+<p><strong>Public Target:</strong> <%= public_target url %></p>
+<p><strong>Created:</strong> <%= format_time url.created %></p>
 
 <h3>Actions</h3>
 <a href="/r/<%= url.public_id %>" class="button grey" target="_blank">Visit</a>

@@ -92,6 +92,47 @@ p {
   background: $primary;
 }
 
+.logo {
+  // Set width to be 5 x height to resize
+  // Also set font-size to 1x height
+  // If no-text is wanted, also set that
+  width: $padding * 8 * 5;
+  height: $padding * 8;
+  font-size: $padding * 8;
+  &.no-text {
+    width: $padding * 8;
+  }
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  &:before {
+    height: 100%;
+    width: 20%;
+    display: inline-block;
+    vertical-align: top;
+    background-image: url("/static/images/logo.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    content: "";
+  }
+  &:after {
+    height: 100%;
+    width: 80%;
+    display: inline-block;
+    vertical-align: top;
+    font-size: .6em;
+    text-align: right;
+    line-height: 1.9em;
+    font-weight: $font-bold;
+    content: "Observatory";
+  }
+  &.no-text {
+    &:before {
+      width: 100%;
+    }
+  }
+}
+
 // Forms
 
 form {
@@ -123,6 +164,7 @@ form {
 
     &:focus {
       background: rgba(0,0,0,0.15);
+      outline: none;
     }
   }
 

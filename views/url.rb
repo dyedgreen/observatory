@@ -63,7 +63,7 @@ module Views
     end
 
     def url_name(url)
-      url.target[/([^\/.]+\.)?[^\/.]+\.([^\/.]{3,}|co\.uk)/][/[^\/.]+\.([^\/.]{3,}|co\.uk)\Z/]
+      url.target[/([^\/.]+\.)?[^\/.]+\.([^\/.]{3,}|(co|ac)\.uk)/][/[^\/.]+\.([^\/.]{3,}|(co|ac)\.uk)\Z/]
     end
 
   end # Url

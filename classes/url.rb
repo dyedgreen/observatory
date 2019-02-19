@@ -3,6 +3,7 @@
 
 require "securerandom"
 require "./classes/error.rb"
+require "./classes/plot.rb"
 
 
 class Url
@@ -32,6 +33,7 @@ class Url
     @public_id = row[0][1]
     @target = row[0][2]
     @created = Time.at row[0][3]
+    @hits = nil
   end
 
   def ==(other)
@@ -49,7 +51,10 @@ class Url
   end
 
   def hits
-    UrlHitArray.new self
+    unless @hits
+      @hits = UrlHitArray.new self
+    end
+    @hits
   end
 
   alias_method :to_s, :target
@@ -147,7 +152,6 @@ class UrlHit
     end
 
   end
-
 end # UrlHit
 
 class UrlHitArray
@@ -160,20 +164,42 @@ class UrlHitArray
   end
 
   def each
-    unless @hits
-      rows = $db.execute <<-SQL, [@url.id]
-        select id from url_hits where url = ? order by created desc
+    load_hits
+    @hits.each { |hit| yield hit }
+  end
+
+  def [](*args)
+    load_hits
+    @hits.[](*args)
+  end
+
+  def first
+    return nil if count == 0
+    unless @first
+      row = $db.execute <<-SQL, [@url.id]
+        select id from url_hits where url = ? order by created asc limit 1
       SQL
-      @hits = rows.map { |row| UrlHit.new row[0] }
+      @first = UrlHit.new row[0][0]
     end
-    @hits.each
+    @first
+  end
+
+  def last
+    return nil if count == 0
+    unless @last
+      row = $db.execute <<-SQL, [@url.id]
+        select id from url_hits where url = ? order by created desc limit 1
+      SQL
+      @last = UrlHit.new row[0][0]
+    end
+    @last
   end
 
   def count(bin_size=nil)
     # bin_size is given in seconds
     if bin_size
       rows = $db.execute <<-SQL, [@url.id, bin_size]
-        select count(), created from url_hits where url = ? group by created/? order by created desc
+        select count(), created from url_hits where url = ? group by created/? order by created asc
       SQL
       return rows.map { |row| [row[0], Time.at(row[1])] }
     end
@@ -181,7 +207,30 @@ class UrlHitArray
     @count
   end
 
+  def plot(color:'000000')
+    unless @plot
+      day_in_s = 24 * 60 * 60
+      data = count day_in_s
+      data = [[0, Time.at(data.first[1].to_i - day_in_s)], data.first] if data.count == 1
+      x = data.map { |el| (el[1].to_i - data.first[1].to_i) / day_in_s }
+      y = data.map { |el| el.first }
+      @plot = Plot::Line.new x, y, color: color
+    end
+    @plot
+  end
+
   alias_method :length, :count
   alias_method :size, :count
+
+  private
+
+  def load_hits
+    unless @hits
+      rows = $db.execute <<-SQL, [@url.id]
+        select id from url_hits where url = ? order by created asc
+      SQL
+      @hits = rows.map { |row| UrlHit.new row[0] }
+    end
+  end
 
 end #UrlHitArray

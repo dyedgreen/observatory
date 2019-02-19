@@ -61,6 +61,13 @@
   }
 }
 
+.line-plot {
+  width: 100%;
+  height: 100px;
+  display: block;
+  margin: $padding 0;
+}
+
 .empty {
   width: 100%;
   margin: $padding * 10 0;
