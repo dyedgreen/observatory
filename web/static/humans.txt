@@ -1,0 +1,10 @@
+Observatory - Simple analytics for the web
+==========================================
+
+A simple web analytics platform and url
+shortener written in Ruby.
+
+------------------------------------------
+
+Written by Tilman Roeder
+tilman.xyz / github.com/dyedgreen

@@ -1,0 +1,23 @@
+// Styles for landing pages
+
+@import "base";
+
+
+.landing {
+  width: $width-large;
+  display: block;
+  margin: $padding * 10 auto;
+  text-align: center;
+
+  h1 {
+    width: 100%;
+    height: auto;
+    margin: $padding * 10 0 $padding * 5 0;
+    text-shadow: 0 $padding 15px rgba(0,0,0,0.1);
+    color: $grey;
+  }
+  .logo {
+    display: block;
+    margin: $padding * 10 auto;
+  }
+}

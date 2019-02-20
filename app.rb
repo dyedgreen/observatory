@@ -12,7 +12,7 @@ require "./views/url.rb"
 class App < Views::Auth
 
   get "/" do
-    render "index.html".to_sym
+    render "index.html.erb".to_sym
   end
 
   get "/test" do
@@ -20,7 +20,7 @@ class App < Views::Auth
     day = 24 * 60 * 60
     [1,50,20,4,2,7,11,0,0,5,2,1].each_with_index do |val, idx|
       val.times do
-        $db.execute <<-SQL, [15, Time.at(now - day*20 - day*idx).to_i]
+        $db.execute <<-SQL, [17, Time.at(now - day*20 - day*idx).to_i]
           insert into url_hits (url, created) values (?, ?)
         SQL
       end

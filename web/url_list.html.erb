@@ -1,9 +1,5 @@
 <ul class="item-list">
-  <%
-  PAGE_SIZE = 5
-  urls = ::Url.list(PAGE_SIZE, page)
-  urls.first.each do |url|
-  %>
+  <% urls.first.each do |url| %>
     <li>
       <h1><%= escape_html url.target %></h1>
       <p><%= public_target url %> - <%= url.hits.count %> total hits</p>

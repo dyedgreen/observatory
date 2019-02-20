@@ -2,13 +2,27 @@
   <h3><%= url.hits.count %> Total Hits</h3>
   <img class="line-plot" src="<%= url.hits.plot(color:"738290").base64 %>">
   <p>
-    Showing hit data from <%= format_date url.hits.first.created %> until
+    Showing data from <%= format_date url.hits.first.created %> to
     <%= format_date url.hits.last.created %>.
   </p>
-  <h3>Browsers and Devices</h3>
-  TODO: browser and devices from user agent
+  <h3>Browsers</h3>
+  <% url.hits.aggregate("browser").each do |browser, hit_count| %>
+    <span class="chip" data-info="<%= hit_count %>"><%= browser %></span>
+  <% end %>
   <h3>Referrals and Sources</h3>
-  TODO: aggregate ref and utm_source
+  <%
+    refs = url.hits.aggregate "ref"
+    utms = url.hits.aggregate "utm_source"
+  %>
+  <% refs.each do |ref, hit_count| %>
+    <a href="/url/ref/<%= escape_html ref %>" class="chip" data-info="<%= hit_count %>"><%= escape_html ref %></a>
+  <% end %>
+  <% utms.each do |src, hit_count| %>
+    <span class="chip" data-info="<%= hit_count %>"><%= escape_html src %></span>
+  <% end %>
+  <% if refs.keys.count + utms.keys.count == 0 %>
+    <p>No data available.</p>
+  <% end %>
 <% else %>
   <%= render "partials/empty.html.erb".to_sym, locals: { :message => "No recorded hits for <i>#{escape_html url.target}</i>." } %>
 <% end %>

@@ -92,6 +92,35 @@ p {
   background: $primary;
 }
 
+.chip {
+  width: auto;
+  height: $font-size * 1.5;
+  padding: 0 $padding * 1.5;
+  display: inline-block;
+  margin: $padding 0;
+  font-size: $font-size * 0.8;
+  font-weight: $font-bold;
+  line-height: $font-size * 1.5;
+  background: $grey;
+  color: #fff;
+  border-radius: $font-size;
+
+  &:after {
+    width: auto;
+    height: $font-size * 1.5;
+    margin: 0 0 0 $padding;
+    color: rgba(255,255,255,0.5);
+    content: attr(data-info);
+  }
+}
+a.chip {
+  text-decoration: none;
+  transition: $transition-fast;
+  &:hover {
+    background: $primary;
+  }
+}
+
 .logo {
   // Set width to be 5 x height to resize
   // Also set font-size to 1x height

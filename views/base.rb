@@ -91,10 +91,27 @@ module Views
   class Root < Base
 
     get "/favicon.ico" do
-      path = "#{render_defaults[:dir]}/static/favicon.ico"
-      halt 404 unless File.exist? path
+      path = file_path "favicon.ico"
       response["Content-Type"] = "image/x-icon"
       File.open(path).read
+    end
+
+    get "/robots.txt" do
+      path = file_path "robots.txt"
+      response["Content-Type"] = "text/plain"
+      File.open(path).read
+    end
+
+    get "/humans.txt" do
+      path = file_path "humans.txt"
+      response["Content-Type"] = "text/plain"
+      File.open(path).read
+    end
+
+    def file_path(file)
+      path = "#{render_defaults[:dir]}/static/#{file}"
+      halt 404 unless File.exist? path
+      path
     end
 
   end # Root

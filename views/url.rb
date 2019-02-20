@@ -10,9 +10,11 @@ module Views
     symbol_matchers[:public_id] = [/[a-zA-Z0-9]{8}/, proc { |v| v }]
 
     get "/" do
+      page = (request.GET["page"] || 0).to_i
+      urls = ::Url.list(5, page)
       render(
         "url_list.html.erb".to_sym,
-        locals: { :title => "Urls", :page => (request.GET["page"] || 0).to_i },
+        locals: { :title => "Urls", :page => page, :urls => urls },
         layout: "layouts/page.html.erb".to_sym
       )
     end
@@ -56,6 +58,15 @@ module Views
       url.delete
       flash[:message] = "Deleted url '#{url.target}'"
       redirect "/url"
+    end
+
+    get "/ref/*" do |ref|
+      urls = ::Referral.new(ref).urls
+      render(
+        "url_list.html.erb".to_sym,
+        locals: { :title => ref, :page => 0, :urls => [urls, urls.count > 0 ? 1 : 0] },
+        layout: "layouts/page.html.erb".to_sym
+      )
     end
 
     def public_target(url)

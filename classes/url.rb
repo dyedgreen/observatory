@@ -2,6 +2,7 @@
 # url resources
 
 require "securerandom"
+require "browser"
 require "./classes/error.rb"
 require "./classes/plot.rb"
 
@@ -111,6 +112,7 @@ class UrlHit
 
   attr_reader :id, :url, :created
   attr_reader :ref, :utm_source, :utm_medium, :utm_campaign, :utm_term, :utm_content, :user_agent
+  attr_reader :browser
 
   def initialize(id)
     row = $db.execute <<-SQL, [id]
@@ -127,6 +129,7 @@ class UrlHit
     @utm_term = row[0][5]
     @utm_content = row[0][6]
     @user_agent = row[0][7]
+    @browser = Browser.new @user_agent
     @created = Time.at row[0][8]
   end
 
@@ -207,13 +210,37 @@ class UrlHitArray
     @count
   end
 
+  def aggregate(meta_field)
+    browser = false
+    if meta_field == "browser"
+      meta_field = "user_agent"
+      browser = true
+    end
+    raise ArgumentError unless UrlHit::META_KEYS.include? meta_field
+    rows = $db.execute(
+      "select #{meta_field}, count() from url_hits where url = ? group by #{meta_field}", 
+      [@url.id]
+    )
+    elems = Hash.new 0
+    rows.each do |row|
+      if browser
+        elems[Browser.new(row[0]).name] += row[1]
+        next
+      end
+      next if row.first == nil
+      elems[row[0]] = row[1]
+    end
+    return elems
+  end
+
   def plot(color:'000000')
     unless @plot
       day_in_s = 24 * 60 * 60
       data = count day_in_s
-      data = [[0, Time.at(data.first[1].to_i - day_in_s)], data.first] if data.count == 1
       x = data.map { |el| (el[1].to_i - data.first[1].to_i) / day_in_s }
       y = data.map { |el| el.first }
+      x.insert 0, x.first
+      y.insert 0, 0
       @plot = Plot::Line.new x, y, color: color
     end
     @plot
@@ -234,3 +261,36 @@ class UrlHitArray
   end
 
 end #UrlHitArray
+
+class Referral
+
+  def initialize(str)
+    @str = str
+  end
+
+  def urls
+    unless @urls
+      rows = $db.execute <<-SQL, [@str]
+        select url from url_hits where ref like ? group by url
+      SQL
+      @urls = rows.map { |row| Url.new row[0] }
+    end
+    @urls
+  end
+
+  def to_s
+    @str
+  end
+
+  class << self
+
+    def list
+      rows = $db.execute "select ref from url_hits group by ref"
+      res = Array.new
+      rows.reject{ |row| row[0] == nil }.map{ |row| Referral.new row[0] }
+    end
+
+    alias_method :all, :list
+
+  end
+end # Referral

@@ -2,7 +2,7 @@
 <html lang="en">
 
   <head>
-    <title><%= title %></title>
+    <title><%= escape_html title %></title>
     <%= render "partials/meta_tags.html".to_sym %>
     <link href="/static/styles/page.css" rel="stylesheet" type="text/css">
   </head>
