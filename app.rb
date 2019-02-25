@@ -35,7 +35,7 @@ class App < Views::Auth
   controller "/url", Views::Url
 
   controller "/", Views::Root # Provides special paths
-  Views::Root << { pattern: "/", target: Views::User} # Provides login and account management
+  Views::Root << { pattern: "/", target: Views::User } # Provides login and account management
 
   after status: (300..600) do
     response.body = render "error.html.erb".to_sym
