@@ -4,7 +4,6 @@ require "base64"
 module Plot
 
   class Base
-
     attr_accessor :color, :svg
 
     def initialize()
@@ -21,7 +20,6 @@ module Plot
     end
 
     private
-
     def svg_base(body, width:100, height:100)
       <<-SVG
       <svg width="#{width}px" height="#{height}px" preserveAspectRatio="none" viewBox="0 0 #{width} #{height}" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -29,11 +27,9 @@ module Plot
       </svg>
       SVG
     end
-
   end # Base
 
   class Line < Base
-
     def initialize(x, y, color:"000000")
       @color = color
       render x, y
@@ -55,7 +51,6 @@ module Plot
       @svg = svg_base path, width: max_x - min_x, height: max_y - min_y
       @svg
     end
-
   end # Line
 
 end

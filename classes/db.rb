@@ -28,9 +28,10 @@ $db.execute <<-SQL
 SQL
 
 $db.execute <<-SQL
-  create table if not exists url_hits (
+  create table if not exists redirects (
     id integer primary key autoincrement,
-    url integer not null,
+    resource integer not null,
+    created integer not null,
     ref text,
     utm_source text,
     utm_medium text,
@@ -38,7 +39,6 @@ $db.execute <<-SQL
     utm_term text,
     utm_content text,
     user_agent text,
-    created integer not null,
-    foreign key (url) references urls(id)
+    foreign key (resource) references urls(id)
   );
 SQL

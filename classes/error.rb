@@ -2,7 +2,6 @@
 
 
 class AppError < RuntimeError
-
   # Error type for errors raised
   # within the business logic. Any
   # custom error types should subclass
@@ -23,16 +22,13 @@ class AppError < RuntimeError
   def inspect
     "AppError: #{@description}"
   end
-
-end
+end # AppError
 
 class HiddenAppError < AppError
-
   # Error that hides the description,
   # when used as a string in a view.
 
   def to_s
     "An error occurred."
   end
-
-end
+end # HiddenAppError

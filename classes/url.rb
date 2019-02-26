@@ -3,6 +3,7 @@
 
 require "securerandom"
 require "browser"
+
 require "./classes/error.rb"
 require "./classes/plot.rb"
 

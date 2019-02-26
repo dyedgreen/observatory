@@ -2,11 +2,11 @@
 # management
 
 require "rotp"
+
 require "./classes/error.rb"
 
 
 class User
-
   ERR_EXISTS     = "User already exists."
   ERR_NOT_EXISTS = "User does not exist."
   ERR_LOGIN_CODE = "The login code is not valid."
@@ -54,42 +54,38 @@ class User
     SQL
   end
 
-  class << self
+  def self.valid?(code, secret)
+    totp = ROTP::TOTP.new secret
+    totp.verify code, drift_behind: 15
+  end
 
-    def valid?(code, secret)
-      totp = ROTP::TOTP.new secret
-      totp.verify code, drift_behind: 15
-    end
+  def self.exist?(name)
+    $db.execute("select count(*) from users where name = ?", [name.downcase])[0][0] == 1
+  end
 
-    def exist?(name)
-      $db.execute("select count(*) from users where name = ?", [name.downcase])[0][0] == 1
-    end
+  def self.count
+    $db.execute("select count(*) from users")[0][0]
+  end
 
-    def count
-      $db.execute("select count(*) from users")[0][0]
-    end
+  def self.list
+    $db.execute("select name from users").map { |row| row.first }
+  end
 
-    def list
-      $db.execute("select name from users").map { |row| row.first }
-    end
+  def self.create(name, secret, code=nil)
+    # If code is given, this will
+    # verify and raise on error
+    name.downcase!
+    raise AppError.new ERR_BAD_SECRET unless secret.is_a? String
+    raise AppError.new ERR_EXISTS if exist? name
+    raise AppError.new ERR_BAD_NAME unless name.match /\A[a-z0-9\-_.]{3,}\Z/
+    raise AppError.new ERR_LOGIN_CODE unless code == nil || valid?(code, secret)
+    $db.execute <<-SQL, [name, secret, Time.new.to_i]
+      insert into users (name, secret, last_login) values (?, ?, ?)
+    SQL
+    User.new name
+  end
 
-    def create(name, secret, code=nil)
-      # If code is given, this will
-      # verify and raise on error
-      name.downcase!
-      raise AppError.new ERR_BAD_SECRET unless secret.is_a? String
-      raise AppError.new ERR_EXISTS if exist? name
-      raise AppError.new ERR_BAD_NAME unless name.match /\A[a-z0-9\-_.]{3,}\Z/
-      raise AppError.new ERR_LOGIN_CODE unless code == nil || valid?(code, secret)
-      $db.execute <<-SQL, [name, secret, Time.new.to_i]
-        insert into users (name, secret, last_login) values (?, ?, ?)
-      SQL
-      User.new name
-    end
-
-    def make_secret
-      ROTP::Base32.random_base32
-    end
-
+  def self.make_secret
+    ROTP::Base32.random_base32
   end
 end # User
