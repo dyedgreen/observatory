@@ -55,6 +55,10 @@ module Track
       Redirect.create self, meta
     end
 
+    def target_with_protocol
+      (@target.match(/\Ahttps?:\/\//) ? "" : "http://") << @target
+    end
+
     def delete
       Redirect.delete self
       $db.execute "delete from urls where id = ?", [@id]

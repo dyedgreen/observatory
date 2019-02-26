@@ -1,5 +1,5 @@
 # Ignore database files
-data
+data/*.db
 
 # System files
 .DS_Store

@@ -1,7 +1,7 @@
 require "sqlite3"
 
 
-$db = SQLite3::Database.new "./data/url.db"
+$db = SQLite3::Database.new "./data/database.db"
 
 # Initialize database
 
