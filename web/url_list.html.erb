@@ -1,14 +1,14 @@
 <ul class="item-list">
-  <% urls.first.each do |url| %>
+  <% urls.each do |url| %>
     <li>
       <h1><%= escape_html url.target %></h1>
-      <p><%= public_target url %> - <%= url.hits.count %> total hits</p>
+      <p><%= public_target url %> - <%= url.events.count %> total redirects</p>
       <a href="/r/<%= url.public_id %>" class="button" target="_blank">Visit</a>
       <a href="/url/<%= url.public_id %>" class="button">View Details</a>
     </li>
   <% end %>
 
-  <% if urls[1] == 0 %>
+  <% if page_count == 0 %>
     <%= render "partials/empty.html.erb".to_sym %>
   <% else %>
     <span class="pagination">
@@ -16,9 +16,9 @@
         <a href="/url?page=<%= page-1 %>" class="button">Newer</a>
       <% else %><span class="placeholder"></span><% end %>
 
-      <p><%= page+1 %>/<%= urls[1] %></p>
+      <p><%= page+1 %>/<%= page_count %></p>
 
-      <% if page + 1 < urls[1] %>
+      <% if page+1 < page_count %>
         <a href="/url?page=<%= page+1 %>" class="button">Older</a>
       <% else %><span class="placeholder"></span><% end %>
     </span>

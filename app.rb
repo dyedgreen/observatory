@@ -5,7 +5,7 @@ require "./classes/db.rb"
 require "./views/base.rb"
 require "./views/auth.rb"
 require "./views/refer.rb"
-# require "./views/url.rb"
+require "./views/url.rb"
 
 
 class App < Views::Auth
@@ -17,8 +17,8 @@ class App < Views::Auth
   controller "/static/", Views::Static
   controller "/r/", Views::Refer
 
-  # controller "/dashboard", Views::Url
-  # controller "/url", Views::Url
+  controller "/dashboard", Views::Url # TODO - Make actual dashboard
+  controller "/url", Views::Url
 
   controller "/", Views::Root # Provides special paths
   Views::Root << { pattern: "/", target: Views::User } # Provides login and account management

@@ -44,6 +44,7 @@ class TestTrackUrl < Test::Unit::TestCase
     assert_false !!Track::Url.valid?("Hello World!")
     assert_false !!Track::Url.valid?("wwwcatscom")
     assert_false !!Track::Url.valid?("The quick brown fox jumps over the lazy dog.")
+    assert_false !!Track::Url.valid?("www.stack overflow.com")
     # assert_false !!Track::Url.valid?("peter.parker@gmail.com") - not covered by approximation
   end
 

@@ -110,7 +110,7 @@ module Track
 
     def self.valid?(url)
       # This is an approximation
-      url.match /(https?:\/\/)?([a-zA-Z0-9]+\.)?[a-zA-Z0-9]+\.[a-zA-Z0-9]{2,}(\/.*)*/
+      url.match /\A(https?:\/\/)?([a-zA-Z0-9]+\.)?[a-zA-Z0-9]+\.[a-zA-Z0-9]{2,}(\/[^ \/]*)*\Z/
     end
   end # Url
 
@@ -121,10 +121,6 @@ module Track
 
     # TODO
   end # Page
-
-  class Browser < ::Browser::Base
-    # Holds user agents
-  end # Browser
 
   class Event
     # Tracking event, these are the
@@ -257,10 +253,11 @@ module Track
       raise ArgumentError unless @type.meta_keys.include?(key)
       rows = $db.execute(
         "select #{key}, count() from #{Event::TABLES[@type]} where resource = ? group by #{key}",
-        [@url.id]
+        [@resource.id]
       )
       counts = Hash.new 0
       rows.each do |row|
+        next unless row[0] || meta_field == "browser" # skip empty
         counts[meta_field == "browser" ? Browser.new(row[0]): row[0]] += row[1]
       end
       return counts
@@ -283,9 +280,9 @@ module Track
       data.count.times do |i|
         x.push data[i][1].to_i
         y.push data[i][0]
-        if data.count < i+1 && data[i+1][1] > data[i][1] + 24*60*60
-          x.push data[i][1].to_i + 24*60*60
-          y.push 0
+        if i+1 < data.count && data[i+1][1] > data[i][1] + 24*60*60
+          x.push data[i][1].to_i + 24*60*60, data[i+1][1].to_i - 24*60*60
+          y.push 0, 0
         end
       end
       x.insert 0, x.first
