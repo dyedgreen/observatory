@@ -1,6 +1,8 @@
-# URL
-**u**nobtrusive **r**edirects for shared **l**inks
+# Observatory
+
+Unobtrusive Analytics for the Web
 
 ---
 
-Work in progress
+Observatory allows you to track basic actions on your website and shared short-urls, while
+respecting your users privacy.

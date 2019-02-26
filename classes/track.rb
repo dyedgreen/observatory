@@ -51,7 +51,7 @@ module Track
       return @cache_events
     end
 
-    def record_event(meta)
+    def record_event(meta={})
       Redirect.create self, meta
     end
 
@@ -138,11 +138,12 @@ module Track
       row = $db.execute <<-SQL, [id]
         select
         resource, created, ref, utm_source, utm_medium, utm_campaign, utm_term, utm_content, user_agent
-        from #{TABLES[self]}
+        from #{TABLES[self.class]}
         where id = ? limit 1
       SQL
+      raise ArgumentError unless row.count > 0
       @id = id
-      @resource     = row[0][0]
+      @resource     = RESOURCES[self.class].new row[0][0]
       @created      = Time.at row[0][1]
       @ref          = row[0][2]
       @utm_source   = row[0][3]
@@ -155,6 +156,10 @@ module Track
 
     def browser
       Browser.new @user_agent
+    end
+
+    def ==(other)
+      @id == other.id
     end
 
     def <=>(other)
@@ -305,11 +310,16 @@ module Track
     # TODO
   end # View
 
-  # Specify tables
+  # Specify tables and
+  # resource classes
   class Event
     TABLES = {
       Redirect => "redirects",
       View     => "views",
+    }
+    RESOURCES = {
+      Redirect => Url,
+      View     => Page,
     }
   end
 
