@@ -4,6 +4,8 @@ Observatory - Simple analytics for the web
 A simple web analytics platform and url
 shortener written in Ruby.
 
+github.com/dyedgreen/observatory
+
 ------------------------------------------
 
 Written by Tilman Roeder
