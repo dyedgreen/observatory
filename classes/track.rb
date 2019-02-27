@@ -293,7 +293,10 @@ module Track
     private
     def load_all
       unless @cache_all
-        rows = $db.execute "select id from #{Event::TABLES[@type]} where resource = ? order by created asc", [@resource.id]
+        rows = $db.execute(
+          "select id from #{Event::TABLES[@type]} where resource = ? order by created asc",
+          [@resource.id]
+        )
         @cache_all = rows.map { |row| @type.new row[0] }
       end
       @cache_all

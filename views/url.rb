@@ -58,7 +58,7 @@ module Views
       halt 404 unless Track::Url.exist? captures[:public_id]
       url = Track::Url.new captures[:public_id]
       url.delete
-      flash[:message] = "Deleted url '#{url.target}'"
+      flash[:message] = "Deleted url '#{url.target}'."
       redirect "/url"
     end
 
