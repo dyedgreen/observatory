@@ -29,7 +29,6 @@ module Views
   })
 
   class Base < Scorched::Controller
-
     middleware << proc {
       use Rack::Session::Cookie, secret: ENV["SESSION_SECRET"]
     }
@@ -52,11 +51,9 @@ module Views
     def format_date(time)
       time.to_s[/\d+-\d+-\d+/]
     end
-
   end # Base
 
   class Static < Base
-
     config[:cache_templates] = true unless ENV["RACK_ENV"] == "development"
 
     # Serve scss style sheets
@@ -85,11 +82,9 @@ module Views
       end
       path
     end
-
   end # Static
 
   class Root < Base
-
     get "/favicon.ico" do
       path = file_path "favicon.ico"
       response["Content-Type"] = "image/x-icon"
@@ -113,7 +108,6 @@ module Views
       halt 404 unless File.exist? path
       path
     end
-
   end # Root
 
 end

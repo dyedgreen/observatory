@@ -6,10 +6,10 @@ require "base64"
 require "./classes/user.rb"
 require "./views/base.rb"
 
+
 module Views
 
   class Auth < Base
-
     SESSION_TIMEOUT  = 60 * 15 # in seconds, time until inactive session terminates
     SESSION_DURATION = 24 * 60 * 60 # in seconds, time until a session fully expires
 
@@ -39,22 +39,18 @@ module Views
     def logout
       session["auth_user"] = nil
     end
-
   end # Auth
 
   class Protected < Auth
-
     before do
       unless user?
         flash[:login_target] = request.path
         redirect "/login"
       end
     end
-
   end # Protected
 
   class User < Auth
-
     LOGGED_IN_PATH = "/dashboard" # Default login target
 
     before do
@@ -159,10 +155,9 @@ module Views
     end
 
     def qr_code(secret)
-      url = ROTP::TOTP.new(secret).provisioning_uri("")
+      url = ROTP::TOTP.new(secret).provisioning_uri("Observatory")
       "data:image/svg+xml;base64,#{Base64.encode64(RQRCode::QRCode.new(url).as_svg)}"
     end
-
   end # User
 
 end

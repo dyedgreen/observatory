@@ -3,10 +3,10 @@ require "scorched"
 require "./classes/track.rb"
 require "./views/base.rb"
 
+
 module Views
 
   class Refer < Base
-
     symbol_matchers[:public_id] = [/[a-zA-Z0-9]{8}(\-[a-zA-Z]+)*/, proc { |v| v.split("-").first.to_s }]
 
     get "/:public_id" do
@@ -17,7 +17,6 @@ module Views
       url.record_event meta
       redirect url.target_with_protocol
     end
-
   end # Refer
 
 end

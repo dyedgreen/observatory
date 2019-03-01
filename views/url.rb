@@ -3,10 +3,10 @@ require "scorched"
 require "./classes/track.rb"
 require "./views/auth.rb"
 
+
 module Views
 
   class Url < Protected
-
     symbol_matchers[:public_id] = [/[a-zA-Z0-9]{8}/, proc { |v| v }]
 
     get "/" do
@@ -69,7 +69,6 @@ module Views
     def url_name(url)
       url.target[/([^\/.]+\.)?[^\/.]+\.([^\/.]{3,}|(co|ac)\.uk)/][/[^\/.]+\.([^\/.]{3,}|(co|ac)\.uk)\Z/]
     end
-
   end # Url
 
 end
