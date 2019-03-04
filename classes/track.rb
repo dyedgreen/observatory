@@ -89,19 +89,33 @@ module Track
 
     # Ordered such that last created is
     # at index 0.
-    def self.list(limit=nil, page=0)
-      if limit
-        rows = $db.execute "select id from urls order by created desc limit ? offset ?", [limit, page*limit]
-      else
-        rows = $db.execute "select id from urls order by created desc"
+    def self.list(limit=nil, page=0, ref:nil)
+      q = "select id from urls"
+      params = []
+      if ref
+        q << " where id in (select resource from redirects where ref like ? group by resource)"
+        params << ref
       end
+      q << " order by created desc"
+      if limit
+        q << " limit ? offset ?"
+        params << limit << page*limit
+      end
+      rows = $db.execute q, params
       rows.map { |row| Url.new row[0] }
     end
 
     # If using list with a limit, knowing
     # the total page count is helpful.
-    def self.count(page_size=1)
-      total = $db.execute("select count() from urls")[0][0]
+    def self.count(page_size=1, ref:nil)
+      if ref
+        total = $db.execute(
+          "select count() from urls where id in (select resource from redirects where ref like ? group by resource)",
+          [ref]
+          )[0][0]
+      else
+        total = $db.execute("select count() from urls")[0][0]
+      end
       return total % page_size == 0 ? total / page_size : total / page_size + 1
     end
 
@@ -111,7 +125,7 @@ module Track
 
     def self.valid?(url)
       # This is an approximation
-      url.match /\A(https?:\/\/)?([a-zA-Z0-9]+\.)?[a-zA-Z0-9\-\_]+\.[a-zA-Z0-9]{2,}(\/[^ \/]*)*\Z/
+      url.match /\A(https?:\/\/)?([a-zA-Z0-9]+\.)?[a-zA-Z0-9\-\_]+\.[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})?(\/[^ \/]*)*\Z/
     end
   end # Url
 

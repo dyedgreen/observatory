@@ -39,6 +39,7 @@ class TestTrackUrl < Test::Unit::TestCase
     assert_true !!Track::Url.valid?("https://en.wikipedia.org/wiki/UTM_parameters")
     assert_true !!Track::Url.valid?("https://www.youtube.com/watch?v=uqKGREZs6-w")
     assert_true !!Track::Url.valid?("www.rust-lang.org")
+    assert_true !!Track::Url.valid?("www.youtube.co.uk")
   end
 
   def test_invalid
@@ -66,6 +67,26 @@ class TestTrackUrl < Test::Unit::TestCase
     urls.each { |u| assert_true list.any? { |url| u == url.target } }
   end
 
+  def test_list_ref
+    a = Track::Url.create "www.ref-a.com"
+    b = Track::Url.create "www.ref-b.com"
+    a.record_event({
+      "ref" => "ref-a",
+    })
+    a.record_event({
+      "ref" => "ref-b",
+    })
+    b.record_event({
+      "ref" => "ref-a",
+    })
+    list_a = Track::Url.all(ref: "ref-a")
+    list_b = Track::Url.all(ref: "ref-b")
+    assert_true list_a.include? a
+    assert_true list_a.include? b
+    assert_true list_b.include? a
+    assert_false list_b.include? b
+  end
+
   def test_all
     assert_equal Track::Url.method(:list), Track::Url.method(:all)
   end
@@ -84,6 +105,22 @@ class TestTrackUrl < Test::Unit::TestCase
     total = Track::Url.count
     pages = Track::Url.count 2
     assert_true total == pages * 2 || total == pages * 2 - 1
+  end
+
+  def test_count_ref
+    c = Track::Url.create "www.ref-c.com"
+    d = Track::Url.create "www.ref-d.com"
+    c.record_event({
+      "ref" => "ref-c",
+    })
+    c.record_event({
+      "ref" => "ref-d",
+    })
+    d.record_event({
+      "ref" => "ref-c",
+    })
+    assert_equal 2, Track::Url.count(ref: "ref-c")
+    assert_equal 1, Track::Url.count(ref: "ref-d")
   end
 
 end

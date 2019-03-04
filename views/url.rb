@@ -21,6 +21,18 @@ module Views
       )
     end
 
+    get "/ref/*" do |ref|
+      page = (request.GET["page"] || 0).to_i
+      urls = Track::Url.list(10, page, ref: ref)
+      page_count = Track::Url.count 10, ref: ref
+      redirect "/url" unless page < page_count || Track::Url.count(ref: ref) == 0
+      render(
+        "url_list.html.erb".to_sym,
+        locals: { title: ref, page: page, urls: urls, page_count: page_count },
+        layout: "layouts/page.html.erb".to_sym
+      )
+    end
+
     post "/create" do
       begin
         url = Track::Url.create request.POST["target"]
