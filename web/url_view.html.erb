@@ -12,15 +12,11 @@
   <h3>Referrals and Sources</h3>
   <%
     refs = url.events.aggregate "ref"
-    utms = url.events.aggregate "utm_source"
   %>
   <% refs.each do |ref, count| %>
-    <a href="/ref/<%= escape_html ref %>" class="chip" data-info="<%= count %>"><%= escape_html ref %></a>
+    <a href="/url/ref/<%= escape_html ref %>" class="chip" data-info="<%= count %>"><%= escape_html ref %></a>
   <% end %>
-  <% utms.each do |src, count| %>
-    <span class="chip" data-info="<%= count %>"><%= escape_html src %></span>
-  <% end %>
-  <% if refs.keys.count + utms.keys.count == 0 %>
+  <% if refs.keys.count == 0 %>
     <p>No data available.</p>
   <% end %>
 <% else %>

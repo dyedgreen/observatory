@@ -1,5 +1,6 @@
 require "securerandom"
 require "browser"
+require "open-uri"
 
 require "./classes/error.rb"
 require "./classes/plot.rb"
@@ -110,16 +111,100 @@ module Track
 
     def self.valid?(url)
       # This is an approximation
-      url.match /\A(https?:\/\/)?([a-zA-Z0-9]+\.)?[a-zA-Z0-9]+\.[a-zA-Z0-9]{2,}(\/[^ \/]*)*\Z/
+      url.match /\A(https?:\/\/)?([a-zA-Z0-9]+\.)?[a-zA-Z0-9\-\_]+\.[a-zA-Z0-9]{2,}(\/[^ \/]*)*\Z/
     end
   end # Url
+
+  class Site
+    # White list entry,
+    # containing a hostname
+    # and a consent token.
+
+    ERR_EXISTS     = "Site already exists."
+    ERR_NOT_EXISTS = "Site does not exist."
+
+    CONSENT_TAG = /\<meta *name *= *["']observatory["'] *content *= *["']([a-zA-Z0-9]{16})["'] *\/? *\>/i
+
+    attr_reader :id, :host, :consent_token
+
+    def initialize(id_or_host)
+      q = "select id, host, consent_token from site_whitelist where "
+      if id_or_host.is_a? Integer
+        q << "id = ?"
+      else
+        q << "host like ?"
+      end
+      q << " limit 1"
+      row = $db.execute q, [id_or_host]
+      raise AppError.new ERR_NOT_EXISTS unless row.count > 0
+      @id = row.first[0]
+      @host = row.first[1]
+      @consent_token = row.first[2]
+    end
+
+    def ==(other)
+      return false unless other.is_a? Site
+      return @id == other.id
+    end
+
+    def consent?(path)
+      begin
+        open("http://#{@host}#{path}", "User-Agent" => "Ruby/Observatory") do |doc|
+          body = doc.read(2048)
+          token = CONSENT_TAG.match(body)
+          token ? token[1] == @consent_token : false
+        end
+      rescue SocketError
+        # Not reachable -> no consent
+        return false
+      end
+    end
+
+    def delete
+      $db.execute("delete from site_whitelist where id = ?", [@id])
+    end
+
+    def self.exist?(host)
+      $db.execute("select count(*) from site_whitelist where host like ?", [host])[0][0] == 1
+    end
+
+    def self.create(host)
+      raise AppError.new ERR_EXISTS if exist? host
+      $db.execute <<-SQL, [host, SecureRandom.alphanumeric(16)]
+        insert into site_whitelist (host, consent_token) values (?, ?)
+      SQL
+      Site.new host
+    end
+  end
 
   class Page
     # Page on website using
     # observatory. Tracks
     # page views.
 
-    # TODO
+    ERR_EXISTS     = "Page already exists."
+    ERR_NOT_EXISTS = "Page does not exist."
+    ERR_BAD_HOST   = "Host is not on white-list."
+    ERR_NO_CONSENT = "Consent token not present."
+
+    def initialize(id_or_host, path=nil)
+      q = "select id, site, path from pages where "
+      if id_or_host.is_a? Integer
+        q << "id = ?"
+      else
+        q << "site = (select id from site_whitelist where host like ?) and path like ?"
+      end
+      q << " limit 1"
+      row = $db.execute(q, id_or_host.is_a?(Integer) ? [id_or_host] : [id_or_host, path])
+      p row
+    end
+
+    def self.create
+    end
+
+    def self.create_site(host)
+
+    end
   end # Page
 
   class Event
@@ -128,16 +213,16 @@ module Track
     # only difference may be in how
     # they are loaded from the database.
 
-    META_KEYS = ["ref", "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "user_agent"]
+    META_KEYS = ["ref", "user_agent"]
     MAX_META_LEN = 256
 
     attr_reader :id, :resource, :created
-    attr_reader :ref, :utm_source, :utm_medium, :utm_campaign, :utm_term, :utm_content, :user_agent
+    attr_reader :ref, :user_agent
 
     def initialize(id)
       row = $db.execute <<-SQL, [id]
         select
-        resource, created, ref, utm_source, utm_medium, utm_campaign, utm_term, utm_content, user_agent
+        resource, created, ref, user_agent
         from #{TABLES[self.class]}
         where id = ? limit 1
       SQL
@@ -146,12 +231,7 @@ module Track
       @resource     = RESOURCES[self.class].new row[0][0]
       @created      = Time.at row[0][1]
       @ref          = row[0][2]
-      @utm_source   = row[0][3]
-      @utm_medium   = row[0][4]
-      @utm_campaign = row[0][5]
-      @utm_term     = row[0][6]
-      @utm_content  = row[0][7]
-      @user_agent   = row[0][8]
+      @user_agent   = row[0][3]
     end
 
     def browser
@@ -221,7 +301,7 @@ module Track
     end
 
     def [](*args)
-      if args.count == 1
+      if args.count == 1 && !@cache_all
         unless @cache_index[args.first]
           rows = $db.execute(
             "select id from #{Event::TABLES[@type]} where resource = ? order by created asc limit 1 offset ?",
@@ -280,10 +360,6 @@ module Track
       data.count.times do |i|
         x.push data[i][1].to_i
         y.push data[i][0]
-        if i+1 < data.count && data[i+1][1] > data[i][1] + 24*60*60
-          x.push data[i][1].to_i + 24*60*60, data[i+1][1].to_i - 24*60*60
-          y.push 0, 0
-        end
       end
       x.insert 0, x.first
       y.insert 0, 0

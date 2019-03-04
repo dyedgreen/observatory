@@ -23,14 +23,13 @@ class TestTrackEvent < Test::Unit::TestCase
     @url.record_event
     @url.record_event({
       "ref" => "some ref",
-      "utm_source" => "some src",
     })
     @url.record_event({
       "user_agent" => "a"*500,
     })
     assert_equal @url.events.count, 3
     assert_equal @url.events.first.resource, @url
-    assert_true @url.events[1].ref == "some ref" && @url.events[1].utm_source == "some src"
+    assert_true @url.events[1].ref == "some ref"
     assert_equal @url.events[2].user_agent, nil
   end
 

@@ -13,7 +13,7 @@ module Views
       page = (request.GET["page"] || 0).to_i
       urls = Track::Url.list(10, page)
       page_count = Track::Url.count 10
-      redirect "/url" unless page < page_count
+      redirect "/url" unless page < page_count || Track::Url.count == 0
       render(
         "url_list.html.erb".to_sym,
         locals: { title: "Urls", page: page, urls: urls, page_count: page_count },

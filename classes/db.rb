@@ -33,11 +33,6 @@ $db.execute <<-SQL
     resource integer not null,
     created integer not null,
     ref text,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    utm_term text,
-    utm_content text,
     user_agent text,
     foreign key (resource) references urls(id)
   );
@@ -46,8 +41,8 @@ SQL
 $db.execute <<-SQL
   create table if not exists site_whitelist (
     id integer primary key autoincrement,
-    host text not null,
-    consent_token varchar(64) unique not null
+    host text unique not null,
+    consent_token varchar(16) unique not null
   );
 SQL
 
@@ -55,7 +50,7 @@ $db.execute <<-SQL
   create table if not exists pages (
     id integer primary key autoincrement,
     site integer not null,
-    path string not null,
+    path text unique not null,
     foreign key (site) references site_whitelist(id)
   );
 SQL
@@ -66,11 +61,6 @@ $db.execute <<-SQL
     resource integer not null,
     created integer not null,
     ref text,
-    utm_source text,
-    utm_medium text,
-    utm_campaign text,
-    utm_term text,
-    utm_content text,
     user_agent text,
     visit_duration integer,
     foreign key (resource) references pages(id)

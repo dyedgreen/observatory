@@ -13,6 +13,9 @@ module Views
       halt 404 unless Track::Url.exist? captures[:public_id]
       url = Track::Url.new captures[:public_id]
       meta = {}.merge! request.GET
+      if meta.key?("utm_source") && !meta.key?("ref")
+        meta["ref"] = meta["utm_source"]
+      end
       meta.merge!({ "user_agent" => request.user_agent })
       url.record_event meta
       redirect url.target_with_protocol

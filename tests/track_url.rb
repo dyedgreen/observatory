@@ -38,6 +38,7 @@ class TestTrackUrl < Test::Unit::TestCase
     assert_true !!Track::Url.valid?("google.co.uk")
     assert_true !!Track::Url.valid?("https://en.wikipedia.org/wiki/UTM_parameters")
     assert_true !!Track::Url.valid?("https://www.youtube.com/watch?v=uqKGREZs6-w")
+    assert_true !!Track::Url.valid?("www.rust-lang.org")
   end
 
   def test_invalid
