@@ -11,7 +11,7 @@ class TestDb < Test::Unit::TestCase
   end
 
   def test_tables
-    expected = ["users", "urls", "redirects", "site_whitelist", "pages", "views"]
+    expected = ["users", "urls", "redirects", "site_whitelist", "pages", "views", "visitors"]
     tables = $db.execute <<-SQL
       select name from sqlite_master where type = 'table' and name not like 'sqlite_%'
     SQL

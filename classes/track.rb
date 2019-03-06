@@ -154,6 +154,8 @@ module Track
       @id = row.first[0]
       @host = row.first[1]
       @consent_token = row.first[2]
+      # Caches
+      @cache_visitors = nil
     end
 
     def ==(other)
@@ -168,10 +170,30 @@ module Track
           token = CONSENT_TAG.match(body)
           token ? token[1] == @consent_token : false
         end
-      rescue SocketError
+      rescue SocketError, OpenURI::HTTPError
         # Not reachable -> no consent
         return false
       end
+    end
+
+    def create_page(path)
+      Page.create self, path
+    end
+
+    def pages
+      rows = $db.execute <<-SQL, [@id]
+        select id from pages where site = ?
+      SQL
+      rows.map { |row| Page.new row[0] }
+    end
+
+    def record_visitor(token)
+      Visitor.create self, { token: token }
+    end
+
+    def visitors(cache=true)
+      @cache_visitors = EventArray.new self, Visitor if cache && !@cache_visitors
+      @cache_visitors
     end
 
     def delete
@@ -198,26 +220,72 @@ module Track
 
     ERR_EXISTS     = "Page already exists."
     ERR_NOT_EXISTS = "Page does not exist."
-    ERR_BAD_HOST   = "Host is not on white-list."
     ERR_NO_CONSENT = "Consent token not present."
 
-    def initialize(id_or_host, path=nil)
+    attr_reader :id, :site, :path
+
+    def initialize(id_site_or_host, path=nil)
       q = "select id, site, path from pages where "
-      if id_or_host.is_a? Integer
+      args = []
+      if id_site_or_host.is_a? Integer
         q << "id = ?"
+        args << id_site_or_host
+      elsif id_site_or_host.is_a? Site
+        q << "site = ?"
+        args << id_site_or_host.id
       else
-        q << "site = (select id from site_whitelist where host like ?) and path like ?"
+        q << "site = (select id from site_whitelist where host like ?)"
+        args << id_site_or_host.to_s
       end
-      q << " limit 1"
-      row = $db.execute(q, id_or_host.is_a?(Integer) ? [id_or_host] : [id_or_host, path])
-      p row
+      unless id_site_or_host.is_a? Integer
+        q << " and path like ? limit 1"
+        args << path.to_s
+      end
+      row = $db.execute(q, args)
+      raise AppError.new ERR_NOT_EXISTS unless row.count == 1
+      @id = row[0][0]
+      @site = Site.new row[0][1]
+      @path = row[0][2]
+      # Caches
+      @cache_events
     end
 
-    def self.create
+    def ==(other)
+      return false unless other.is_a? Page
+      return @id == other.id
     end
 
-    def self.create_site(host)
+    def record_event(meta={})
+      Visit.create self, meta
+    end
 
+    def events(cache=true)
+      @cache_events = EventArray.new self, Visit if cache && !@cache_events
+      @cache_events
+    end
+
+    def self.exist?(host_or_site, path)
+      q = "select count() from pages where "
+      if host_or_site.is_a? Site
+        q << "site = ?"
+      else
+        q << "site = (select id from site_whitelist where host like ?)"
+      end
+      q << " and path like ?"
+      $db.execute(
+        q,
+        [host_or_site.is_a?(Site) ? host_or_site.id : host_or_site , path]
+      )[0][0] == 1
+    end
+
+    def self.create(host_or_site, path)
+      site = host_or_site.is_a?(Site) ? host_or_site : Site.new(host_or_site)
+      raise AppError.new ERR_EXISTS if Page.exist? site, path
+      raise AppError.new ERR_NO_CONSENT unless site.consent? path
+      $db.execute <<-SQL, [site.id, path]
+        insert into pages (site, path) values (?, ?)
+      SQL
+      return Page.new site, path
     end
   end # Page
 
@@ -227,16 +295,15 @@ module Track
     # only difference may be in how
     # they are loaded from the database.
 
-    META_KEYS = ["ref", "user_agent"]
+    META_KEYS = [] # Override to define meta-keys
     MAX_META_LEN = 256
 
     attr_reader :id, :resource, :created
-    attr_reader :ref, :user_agent
 
     def initialize(id)
       row = $db.execute <<-SQL, [id]
         select
-        resource, created, ref, user_agent
+        resource, created#{self.class.meta_keys.count > 0 ? ',' : ''} #{self.class.meta_keys.join ', '}
         from #{TABLES[self.class]}
         where id = ? limit 1
       SQL
@@ -244,8 +311,11 @@ module Track
       @id = id
       @resource     = RESOURCES[self.class].new row[0][0]
       @created      = Time.at row[0][1]
-      @ref          = row[0][2]
-      @user_agent   = row[0][3]
+      # Dynamically add all meta keys for this event type
+      self.class.meta_keys.each_with_index do |name, i|
+        instance_variable_set "@#{name}".to_sym, row[0][2+i]
+        self.class.class_eval { attr_reader name.to_sym }
+      end
     end
 
     def browser
@@ -279,7 +349,7 @@ module Track
     end
 
     def self.meta_keys
-      META_KEYS
+      self::META_KEYS
     end
   end # Event
 
@@ -394,15 +464,25 @@ module Track
   end
 
   class Redirect < Event
-    # Redirect to url. This
-    # event type does not add
-    # any additional fields.
+    # Redirect to url
+
+    META_KEYS = ["ref", "user_agent"]
   end # Redirect
 
   class View < Event
     # Page view event
-    # TODO
+
+    META_KEYS = ["ref", "visit_duration", "screen_width", "screen_height"]
   end # View
+
+  class Visitor < Event
+    # Unique visitor event,
+    # simply indicates existence
+    # but is not tied to any
+    # other events
+
+    META_KEYS = ["token"]
+  end
 
   # Specify tables and
   # resource classes
@@ -410,10 +490,12 @@ module Track
     TABLES = {
       Redirect => "redirects",
       View     => "views",
+      Visitor  => "visitors",
     }
     RESOURCES = {
       Redirect => Url,
       View     => Page,
+      Visitor  => Site,
     }
   end
 

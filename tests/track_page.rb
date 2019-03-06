@@ -34,10 +34,12 @@ class TestTrackPage < Test::Unit::TestCase
     host = "stub.give.consent"
     @give_consent = Track::Site.exist?(host) ? Track::Site.new(host) : Track::Site.create(host)
     $stub_consent_token = @give_consent.consent_token
+    @site = @give_consent
   end
 
   def test_site_new
     assert_equal Track::Site.new("www.google.com"), @google
+    assert_equal Track::Site.new(@google.id), @google
     assert_raise(AppError) { Track::Site.new("does.not.exist") }
   end
 
@@ -63,8 +65,24 @@ class TestTrackPage < Test::Unit::TestCase
     assert_raise(AppError) { Track::Site.new("www.google.com") }
   end
 
-  def test_create
-    # TODO
+  def test_page_create
+    a = Track::Page.create @site.host, "/a"
+    b = @site.create_page "/b"
+    assert_true Track::Page.exist? @site, "/a"
+    assert_true Track::Page.exist? @site.host, "/a"
+    assert_true Track::Page.exist? @site, "/b"
+
+    assert_raise(AppError) { @google.create_page "/no-consent-given" }
   end
+
+  def test_page_new
+    page = @site.create_page "/new"
+    assert_equal Track::Page.new(page.id), page
+    assert_equal Track::Page.new(page.site, "/new"), page
+    assert_equal Track::Page.new(@site.host, "/new"), page
+  end
+
+  # TODO: Test other stuff in api before building json
+  #   api and UI + ts parts
 
 end

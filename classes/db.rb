@@ -61,8 +61,19 @@ $db.execute <<-SQL
     resource integer not null,
     created integer not null,
     ref text,
-    user_agent text,
     visit_duration integer,
+    screen_width integer,
+    screen_height integer,
     foreign key (resource) references pages(id)
+  );
+SQL
+
+$db.execute <<-SQL
+  create table if not exists visitors (
+    id integer primary key autoincrement,
+    resource integer not null,
+    created integer not null,
+    token varchar(16) unique not null,
+    foreign key (resource) references site_whitelist(id)
   );
 SQL
