@@ -82,6 +82,7 @@ class TestTrackPage < Test::Unit::TestCase
     assert_equal Track::Page.new(@site.host, "/new"), page
   end
 
+  def test_site_record_visitor
   # TODO: Test other stuff in api before building json
   #   api and UI + ts parts
 

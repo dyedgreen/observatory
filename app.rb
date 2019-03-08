@@ -7,11 +7,12 @@ require "./views/auth.rb"
 require "./views/api.rb"
 require "./views/refer.rb"
 require "./views/url.rb"
-require "./views/page_api.rb"
+require "./views/dashboard.rb"
+require "./views/settings.rb"
+require "./views/visit_api.rb"
 
 class Api < Views::Api
-  # TODO - Make apis for page views
-  controller "/test", Views::Test
+  controller "/visit", Views::VisitApi
 end
 
 class App < Views::Auth
@@ -24,9 +25,9 @@ class App < Views::Auth
 
   controller "/api", Api
 
-  controller "/dashboard", Views::Url # TODO - Make actual dashboard
+  controller "/dashboard", Views::Dashboard
   controller "/url", Views::Url
-  controller "/settings", Views::Url # TODO - Make actual settings
+  controller "/settings", Views::Settings
 
   controller "/", Views::Root # Provides special paths
   Views::Root << { pattern: "/", target: Views::User } # Provides login and account management

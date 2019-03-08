@@ -1,0 +1,15 @@
+<h3>Site White-List</h3>
+<ul class="item-list">
+  <% sites.each do |site| %>
+    <li>
+      <h1><%= escape_html site.host %></h1>
+      <a href="/settings/<%= site.id %>/delete" class="button red">Delete</a>
+    </li>
+  <% end %>
+  <% if sites.count == 0 %>
+    <%= render "partials/empty.html.erb".to_sym %>
+  <% end %>
+</ul>
+
+<h3>Actions</h3>
+<a href="/settings/create" class="button">Add Host</a>

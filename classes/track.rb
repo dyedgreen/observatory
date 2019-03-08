@@ -134,10 +134,12 @@ module Track
     # containing a hostname
     # and a consent token.
 
-    ERR_EXISTS     = "Site already exists."
-    ERR_NOT_EXISTS = "Site does not exist."
+    ERR_EXISTS      = "Site already exists."
+    ERR_NOT_EXISTS  = "Site does not exist."
+    ERR_BAD_VISITOR = "Visitor token malformed."
 
-    CONSENT_TAG = /\<meta *name *= *["']observatory["'] *content *= *["']([a-zA-Z0-9]{16})["'] *\/? *\>/i
+    CONSENT_TAG   = /\<meta *name *= *["']observatory["'] *content *= *["']([a-zA-Z0-9]{16})["'] *\/? *\>/i
+    VISITOR_TOKEN = /\A[a-zA-Z0-9]{16}\Z/
 
     attr_reader :id, :host, :consent_token
 
@@ -188,7 +190,12 @@ module Track
     end
 
     def record_visitor(token)
-      Visitor.create self, { token: token }
+      raise AppError.new ERR_BAD_VISITOR unless VISITOR_TOKEN.match token
+      if Visitor.exist? token
+        Visitor.update token
+      else
+        Visitor.create self, { token: token, last_visit: Time.now.to_i }
+      end
     end
 
     def visitors(cache=true)
@@ -202,6 +209,10 @@ module Track
 
     def self.exist?(host)
       $db.execute("select count(*) from site_whitelist where host like ?", [host])[0][0] == 1
+    end
+
+    def self.list
+      $db.execute("select id from site_whitelist").map { |row| Site.new row[0] }
     end
 
     def self.create(host)
@@ -400,8 +411,13 @@ module Track
       end
     end
 
-    def count
-      $db.execute("select count(*) from #{Event::TABLES[@type]} where resource = ?", [@resource.id])[0][0]
+    # Additional where sql needs
+    # to be sanitized!
+    def count(where:nil)
+      $db.execute(
+        "select count(*) from #{Event::TABLES[@type]} where resource = ? #{where ? ' and '+where : ''}",
+        [@resource.id]
+      )[0][0]
     end
 
     def first
@@ -472,7 +488,7 @@ module Track
   class View < Event
     # Page view event
 
-    META_KEYS = ["ref", "visit_duration", "screen_width", "screen_height"]
+    META_KEYS = ["ref", "screen_width", "screen_height"]
   end # View
 
   class Visitor < Event
@@ -481,7 +497,15 @@ module Track
     # but is not tied to any
     # other events
 
-    META_KEYS = ["token"]
+    META_KEYS = ["token", "last_visit"]
+
+    def self.update(token)
+      $db.execute("update visitors set last_visit = ? where token = ?", [Time.now.to_i, token])
+    end
+
+    def self.exist?(token)
+      $db.execute("select count() from visitors where token = ?", [token])[0][0] == 1
+    end
   end
 
   # Specify tables and

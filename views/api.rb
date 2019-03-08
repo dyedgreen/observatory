@@ -17,9 +17,9 @@ module Views
       response.body = { error: STATUS_STR[response.status], data: nil }.to_json
     end
 
-    def wrap(*vals)
+    def wrap(*vals, &block)
       begin
-        response = yield *vals
+        response = instance_exec(*vals, &block)
         { error: nil, data: response }.to_json
       rescue AppError => err
         halt 400, { error: err.to_s, data: nil }.to_json

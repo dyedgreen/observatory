@@ -1,17 +1,18 @@
 require "scorched"
 
+require "./classes/track.rb"
 require "./views/api.rb"
 
 
 module Views
 
-  class Test < Api
+  class VisitApi < Api
     get_json "/" do
       (0..5).to_a
     end
 
-    post_json "/pesto" do
-      false
+    post_json "/create" do
+      request.POST
     end
 
     get_json "/fail" do
