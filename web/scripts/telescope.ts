@@ -11,7 +11,7 @@
   // Write do not track status to page
   if (document.getElementById("observatory-dnt-info")) {
     document.getElementById("observatory-dnt-info").innerHTML = DoNotTrack ?
-      "You request to not be tracked. Observatory respects that." :
+      "You request to not be tracked." :
       "The pages you visit are recorded by Observatory.";
   }
   console.log("This website uses Observatory to track view statistics. Learn more at https://github.com/dyedgreen/observatory");
@@ -60,7 +60,7 @@
 
   if (Referrer !== state.referrer && Referrer !== "") {
     // New referrer counts as new visit
-    state.view = {};
+    state.views = {};
     state.visit = null;
     state.referrer = Referrer;
   }
