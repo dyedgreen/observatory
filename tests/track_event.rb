@@ -35,8 +35,7 @@ class TestTrackEvent < Test::Unit::TestCase
 
   def test_meta_keys
     ["ref", "user_agent"].each { |key| assert_true Track::Redirect.meta_keys.include? key }
-    ["ref", "visit_duration", "screen_width", "screen_height"].each { |key| assert_true Track::View.meta_keys.include? key }
-    ["token"].each { |key| assert_true Track::Visitor.meta_keys.include? key }
+    ["ref"].each { |key| assert_true Track::Visit.meta_keys.include? key }
   end
 
 end

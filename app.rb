@@ -9,10 +9,11 @@ require "./views/refer.rb"
 require "./views/url.rb"
 require "./views/dashboard.rb"
 require "./views/settings.rb"
-require "./views/visit_api.rb"
+require "./views/telescope_api.rb"
 
 class Api < Views::Api
   controller "/visit", Views::VisitApi
+  controller "/view", Views::ViewApi
 end
 
 class App < Views::Auth

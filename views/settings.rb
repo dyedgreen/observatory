@@ -36,6 +36,23 @@ module Views
         )
       end
     end
+
+    get "/*/delete" do |site_id|
+      halt 404 unless Track::Site.exist? site_id.to_i
+      render(
+        "partials/confirm_delete.html".to_sym,
+        locals: { title: "Delete Url" },
+        layout: "layouts/form.html.erb".to_sym
+      )
+    end
+
+    post "/*/delete" do |site_id|
+      halt 404 unless Track::Site.exist? site_id.to_i
+      site = Track::Site.new site_id.to_i
+      site.delete
+      flash[:message] = "Deleted host '#{site.host}'."
+      redirect "/settings"
+    end
   end # Settings
 
 end

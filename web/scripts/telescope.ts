@@ -5,10 +5,10 @@
 
   const PageViewTimeout: number = 60*1000;
   const CookieEndurance: number = 60*30*1000;
-  const DoNotTrack: boolean     = navigator.hasOwnProperty("doNotTrack") && navigator["doNotTrack"] === "1";
+  const DoNotTrack: boolean     = navigator["doNotTrack"] === "1";
   const ObservatoryHost: any    = document.getElementById("observatory-script")["src"].match(`(https?:\/\/.+)\/static\/scripts\/telescope\.js`)[1];
 
-  // Write do not track status to page
+  // Write do not track status to page if requested
   if (document.getElementById("observatory-dnt-info")) {
     document.getElementById("observatory-dnt-info").innerHTML = DoNotTrack ?
       "You request to not be tracked." :
@@ -65,18 +65,28 @@
     state.referrer = Referrer;
   }
 
-  // Determine if the current visit counts as new
-  if (state.views[Path] && state.views[Path] < Date.now() - PageViewTimeout) {
-    Api.post("/visit/create", {
-      visit: state.visit,
-      referrer: Referrer,
+  // Determine if current view counts as new
+  if (!state.views[Path] || state.views[Path] < Date.now() - PageViewTimeout) {
+    Api.post("/view/record", {
       host: Host,
-      path: Path
+      path: Path,
     }, (err, data) => {
-      if (!err) state.visit = data;
+      if (err) state.views[Path] = 0; // clear view if not recorded
       store();
     });
   }
+
+  // Record unique visits
+  if (state.visit === null) {
+    Api.post("/visit/record", {
+      host: Host,
+      referrer: Referrer,
+    }, (err, data) => {
+      if (!err) state.visit = true;
+      store();
+    });
+  }
+
   state.views[Path] = Date.now();
 
   // Store final state

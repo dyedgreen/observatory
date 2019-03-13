@@ -47,6 +47,16 @@ $db.execute <<-SQL
 SQL
 
 $db.execute <<-SQL
+  create table if not exists visits (
+    id integer primary key autoincrement,
+    resource integer not null,
+    created integer not null,
+    ref text,
+    foreign key (resource) references site_whitelist(id)
+  );
+SQL
+
+$db.execute <<-SQL
   create table if not exists pages (
     id integer primary key autoincrement,
     site integer not null,
@@ -56,24 +66,11 @@ $db.execute <<-SQL
 SQL
 
 $db.execute <<-SQL
-  create table if not exists views (
+  create table if not exists page_views (
     id integer primary key autoincrement,
-    resource integer not null,
-    created integer not null,
-    ref text,
-    screen_width integer,
-    screen_height integer,
-    foreign key (resource) references pages(id)
-  );
-SQL
-
-$db.execute <<-SQL
-  create table if not exists visitors (
-    id integer primary key autoincrement,
-    resource integer not null,
-    created integer not null,
-    token varchar(16) unique not null,
-    last_visit integer not null,
-    foreign key (resource) references site_whitelist(id)
+    page integer not null,
+    day integer not null,
+    count integer not null,
+    foreign key (page) references pages(id)
   );
 SQL

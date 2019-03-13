@@ -3,6 +3,7 @@
   <% sites.each do |site| %>
     <li>
       <h1><%= escape_html site.host %></h1>
+      <p>Consent token: <%= site.consent_token %></p>
       <a href="/settings/<%= site.id %>/delete" class="button red">Delete</a>
     </li>
   <% end %>

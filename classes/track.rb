@@ -52,6 +52,8 @@ module Track
       return @cache_events
     end
 
+    alias_method :redirects, :events
+
     def record_event(meta={})
       Redirect.create self, meta
     end
@@ -157,7 +159,7 @@ module Track
       @host = row.first[1]
       @consent_token = row.first[2]
       # Caches
-      @cache_visitors = nil
+      @cache_events = nil
     end
 
     def ==(other)
@@ -189,30 +191,39 @@ module Track
       rows.map { |row| Page.new row[0] }
     end
 
-    def record_visitor(token)
-      raise AppError.new ERR_BAD_VISITOR unless VISITOR_TOKEN.match token
-      if Visitor.exist? token
-        Visitor.update token
-      else
-        Visitor.create self, { token: token, last_visit: Time.now.to_i }
-      end
+    def record_page_view(path)
+      Page.new(self, path).record_view
     end
 
-    def visitors(cache=true)
-      @cache_visitors = EventArray.new self, Visitor if cache && !@cache_visitors
-      @cache_visitors
+    def page_exist?(path)
+      Page.exist? self, path
+    end
+
+    def events(cache=true)
+      @cache_events = EventArray.new self, Visit if cache && !@cache_events
+      return @cache_events
+    end
+
+    alias_method :visits, :events
+
+    def record_event(meta={})
+      Visit.create self, meta
     end
 
     def delete
       $db.execute("delete from site_whitelist where id = ?", [@id])
     end
 
-    def self.exist?(host)
-      $db.execute("select count(*) from site_whitelist where host like ?", [host])[0][0] == 1
+    def self.exist?(id_or_host)
+      if id_or_host.is_a? Integer
+        $db.execute("select count(*) from site_whitelist where id = ?", [id_or_host])[0][0] == 1
+      else
+        $db.execute("select count(*) from site_whitelist where host like ?", [id_or_host])[0][0] == 1
+      end
     end
 
     def self.list
-      $db.execute("select id from site_whitelist").map { |row| Site.new row[0] }
+      $db.execute("select id from site_whitelist order by id asc").map { |row| Site.new row[0] }
     end
 
     def self.create(host)
@@ -257,8 +268,6 @@ module Track
       @id = row[0][0]
       @site = Site.new row[0][1]
       @path = row[0][2]
-      # Caches
-      @cache_events
     end
 
     def ==(other)
@@ -266,13 +275,23 @@ module Track
       return @id == other.id
     end
 
-    def record_event(meta={})
-      Visit.create self, meta
+    # Record page view
+    def record_view
+      day = Time.now.to_i / (24*60*60) * (24*60*60) # Time rounded to days (in seconds)
+      record_exists = $db.execute("select count() from page_views where page = ? and day = ?", [@id, day])[0][0] == 1
+      $db.execute("insert into page_views (page, day, count) values (?, ?, 0)", [@id, day]) unless record_exists
+      $db.execute <<-SQL, [@id, day]
+        update page_views set count = count + 1 where page = ? and day = ?
+      SQL
     end
 
-    def events(cache=true)
-      @cache_events = EventArray.new self, Visit if cache && !@cache_events
-      @cache_events
+    def count_views(since=nil)
+      since = since.is_a?(Time) || since.is_a?(Integer) ? since.to_i : 0;
+      since = since / (24*60*60) * (24*60*60) # round to days
+      row = $db.execute <<-SQL, [@id, since]
+        select sum(count) from page_views where page = ? and day >= ?
+      SQL
+      row[0][0] ? row[0][0] : 0
     end
 
     def self.exist?(host_or_site, path)
@@ -413,9 +432,9 @@ module Track
 
     # Additional where sql needs
     # to be sanitized!
-    def count(where:nil)
+    def count()
       $db.execute(
-        "select count(*) from #{Event::TABLES[@type]} where resource = ? #{where ? ' and '+where : ''}",
+        "select count(*) from #{Event::TABLES[@type]} where resource = ?",
         [@resource.id]
       )[0][0]
     end
@@ -485,27 +504,10 @@ module Track
     META_KEYS = ["ref", "user_agent"]
   end # Redirect
 
-  class View < Event
-    # Page view event
+  class Visit < Event
+    # Visits to sites
 
-    META_KEYS = ["ref", "screen_width", "screen_height"]
-  end # View
-
-  class Visitor < Event
-    # Unique visitor event,
-    # simply indicates existence
-    # but is not tied to any
-    # other events
-
-    META_KEYS = ["token", "last_visit"]
-
-    def self.update(token)
-      $db.execute("update visitors set last_visit = ? where token = ?", [Time.now.to_i, token])
-    end
-
-    def self.exist?(token)
-      $db.execute("select count() from visitors where token = ?", [token])[0][0] == 1
-    end
+    META_KEYS = ["ref"]
   end
 
   # Specify tables and
@@ -513,13 +515,11 @@ module Track
   class Event
     TABLES = {
       Redirect => "redirects",
-      View     => "views",
-      Visitor  => "visitors",
+      Visit    => "visits",
     }
     RESOURCES = {
       Redirect => Url,
-      View     => Page,
-      Visitor  => Site,
+      Visit    => Site,
     }
   end
 

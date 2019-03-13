@@ -65,6 +65,14 @@ class TestTrackPage < Test::Unit::TestCase
     assert_raise(AppError) { Track::Site.new("www.google.com") }
   end
 
+  def test_site_visit
+    @site.record_event()
+    @site.record_event({"ref" => "www.duckduckgo.com"})
+    assert_equal 2, @site.visits.count
+    assert_equal nil, @site.visits[0].ref
+    assert_equal "www.duckduckgo.com", @site.visits[1].ref
+  end
+
   def test_page_create
     a = Track::Page.create @site.host, "/a"
     b = @site.create_page "/b"
@@ -82,8 +90,11 @@ class TestTrackPage < Test::Unit::TestCase
     assert_equal Track::Page.new(@site.host, "/new"), page
   end
 
-  def test_site_record_visitor
-  # TODO: Test other stuff in api before building json
-  #   api and UI + ts parts
+  def test_page_record_view
+    page = @site.create_page "/visited_page"
+    10.times { page.record_view }
+    assert_equal 10, page.count_views
+    assert_equal 0, page.count_views(Time.now + 24*60*60)
+  end
 
 end
