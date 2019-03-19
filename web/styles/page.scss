@@ -45,6 +45,32 @@
   }
 }
 
+.comparison {
+  width: 100%;
+  height: auto;
+  display: block;
+  list-style: none;
+
+  li {
+    height: $font-size * 1.5;
+    padding: 0 $padding * 1.5;
+    display: block;
+    margin: $padding 0;
+    font-size: $font-size * 0.8;
+    font-weight: $font-bold;
+    line-height: $font-size * 1.5;
+    background: $grey;
+    color: $dark;
+    border-radius: $font-size;
+    white-space: nowrap;
+
+    &:before {
+      color: rgba(255,255,255,0.5);
+      content: attr(data-info);
+    }
+  }
+}
+
 .action-new-url {
   width: 100%;
   max-width: 100%;

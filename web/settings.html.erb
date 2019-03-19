@@ -4,7 +4,8 @@
     <li>
       <h1><%= escape_html site.host %></h1>
       <p>Consent token: <%= site.consent_token %></p>
-      <a href="/settings/<%= site.id %>/delete" class="button red">Delete</a>
+      <a href="/dashboard/<%= site.id %>" class="button">Dashboard</a>
+      <a href="/settings/<%= site.id %>/delete" class="button">Delete</a>
     </li>
   <% end %>
   <% if sites.count == 0 %>

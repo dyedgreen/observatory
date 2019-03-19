@@ -1,1 +1,26 @@
-TODO
+<% if site.pages.count > 0 %>
+<h3><%= site.host %> - <%= site.visits.count %> total visits</h3>
+
+<ul class="comparison">
+  <% page_views = site.pages.map{ |page| [page, page.count_views] }.sort{ |a, b| b[1] <=> a[1] } %>
+  <% total_page_views = page_views.reduce(0){ |memo, elem| memo + elem[1] } %>
+  <% page_views.each do |page, views| %>
+    <li data-info="<%= views %>" style="width:<%= 100 * views.to_f / total_page_views %>%">
+      <%= page.path %>
+    </li>
+  <% end %>
+</ul>
+
+<h3>Top Referrers</h3>
+<ul class="comparison">
+  <% referrers = site.visits.aggregate("ref").sort{ |a, b| b[1] <=> a[1] } %>
+  <% total_referrals = referrers.reduce(0){ |memo, elem| memo + elem[1] if elem[0] != "" } %>
+  <% referrers.each do |ref, count| %>
+    <li data-info="<%= count %>" style="width:<%= 100 * count.to_f / total_referrals %>%">
+      <%= ref %>
+    </li>
+  <% end %>
+</ul>
+<% else %>
+  <%= render "partials/empty.html.erb".to_sym, locals: { message: "No recorded data for <i>#{escape_html site.host}</i>." } %>
+<% end %>
