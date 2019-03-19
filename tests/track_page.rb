@@ -50,6 +50,11 @@ class TestTrackPage < Test::Unit::TestCase
     assert_equal a, b
   end
 
+  def test_site_create_invalid
+    assert_raises(AppError) { Track::Site.create "" }
+    assert_raises(AppError) { Track::Site.create "   " }
+  end
+
   def test_site_consent
     assert_false @google.consent? "/"
     assert_false @not_reachable.consent? "/"

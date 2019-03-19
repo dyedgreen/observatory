@@ -138,7 +138,7 @@ module Track
 
     ERR_EXISTS      = "Site already exists."
     ERR_NOT_EXISTS  = "Site does not exist."
-    ERR_BAD_VISITOR = "Visitor token malformed."
+    ERR_BAD_HOST    = "Host is malformed."
 
     CONSENT_TAG   = /\<meta *name *= *["']observatory["'] *content *= *["']([a-zA-Z0-9]{16})["'] *\/? *\>/i
     VISITOR_TOKEN = /\A[a-zA-Z0-9]{16}\Z/
@@ -228,6 +228,7 @@ module Track
 
     def self.create(host)
       raise AppError.new ERR_EXISTS if exist? host
+      raise AppError.new ERR_BAD_HOST if host == "" || host.match(/\s+/)
       $db.execute <<-SQL, [host, SecureRandom.alphanumeric(16)]
         insert into site_whitelist (host, consent_token) values (?, ?)
       SQL
