@@ -54,7 +54,7 @@
   function store() { Cookie.set("observatory", state); }
 
   // Determine view parameters
-  const Referrer: string = location.hostname.indexOf(document.referrer) === -1 ? document.referrer : "";
+  const Referrer: string = document.referrer.indexOf(location.hostname) === -1 ? document.referrer : "";
   const Host: string     = location.hostname;
   const Path: string     = location.pathname;
 
