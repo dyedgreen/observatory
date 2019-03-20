@@ -11,6 +11,10 @@ module Views
   class Api < Auth
     after do
       response["Content-Type"] = "application/json"
+      response["Cache-Control"] = "no-cache"
+      # Allow cross origin requests
+      response["Access-Control-Allow-Headers"] = "*"
+      response["Access-Control-Allow-Origin"] = "*"
     end
 
     after status: (401..600) do
