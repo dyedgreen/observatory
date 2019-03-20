@@ -197,6 +197,12 @@ form {
     }
   }
 
+  input[type="submit"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
   .error {
     background: $error;
   }
