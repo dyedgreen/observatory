@@ -56,7 +56,7 @@ class User
 
   def self.valid?(code, secret)
     totp = ROTP::TOTP.new secret
-    totp.verify code, drift_behind: 15
+    totp.verify code, drift_behind: 5
   end
 
   def self.exist?(name)
