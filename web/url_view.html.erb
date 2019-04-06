@@ -7,7 +7,7 @@
   </p>
   <h3>Browsers</h3>
   <% url.events.aggregate("browser").each do |browser, count| %>
-    <span class="chip" data-info="<%= count %>"><%= escape_html browser.name %></span>
+    <span class="chip" data-info="<%= count %>"><%= escape_html browser %></span>
   <% end %>
   <h3>Referrals and Sources</h3>
   <%

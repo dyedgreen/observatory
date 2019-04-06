@@ -458,7 +458,7 @@ module Track
       counts = Hash.new 0
       rows.each do |row|
         next unless row[0] || meta_field == "browser" # skip empty
-        counts[meta_field == "browser" ? Browser.new(row[0]): row[0]] += row[1]
+        counts[meta_field == "browser" ? Browser.new(row[0]).name: row[0]] += row[1]
       end
       return counts
     end

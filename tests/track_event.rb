@@ -38,4 +38,12 @@ class TestTrackEvent < Test::Unit::TestCase
     ["ref"].each { |key| assert_true Track::Visit.meta_keys.include? key }
   end
 
+  def test_browser_grouping
+    @url.record_event({ "user_agent" => "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0" })
+    @url.record_event({ "user_agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X x.y; rv:42.0) Gecko/20100101 Firefox/42.0" })
+    aggr = @url.events.aggregate "browser"
+    assert_equal ["Firefox"], aggr.keys
+    assert_equal 2, aggr["Firefox"]
+  end
+
 end
